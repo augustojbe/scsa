@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Início — SCSI{% endblock %}
+
+{% block page_title %}Início{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="d-flex gap-4 align-items-center">
+                            <div class="avatar-text avatar-lg bg-gray-200">
+                                <i class="feather-users"></i>
+                            </div>
+                            <div>
+                                <div class="fs-4 fw-bold text-dark">{{ total_clients|default:'0' }}</div>
+                                <h3 class="fs-13 fw-semibold text-truncate-1-line">Clientes</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="d-flex gap-4 align-items-center">
+                            <div class="avatar-text avatar-lg bg-gray-200">
+                                <i class="feather-file-text"></i>
+                            </div>
+                            <div>
+                                <div class="fs-4 fw-bold text-dark">{{ total_proposals|default:'0' }}</div>
+                                <h3 class="fs-13 fw-semibold text-truncate-1-line">Propostas</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="d-flex gap-4 align-items-center">
+                            <div class="avatar-text avatar-lg bg-gray-200">
+                                <i class="feather-shield"></i>
+                            </div>
+                            <div>
+                                <div class="fs-4 fw-bold text-dark">{{ total_insurers|default:'0' }}</div>
+                                <h3 class="fs-13 fw-semibold text-truncate-1-line">Seguradoras</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="d-flex gap-4 align-items-center">
+                            <div class="avatar-text avatar-lg bg-gray-200">
+                                <i class="feather-package"></i>
+                            </div>
+                            <div>
+                                <div class="fs-4 fw-bold text-dark">{{ total_items|default:'0' }}</div>
+                                <h3 class="fs-13 fw-semibold text-truncate-1-line">Itens Cobertos</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card stretch stretch-full">
+        <div class="card-body">
+            <h5 class="mb-3">Bem-vindo, {{ user.full_name }}!</h5>
+            <p class="text-muted fs-13 mb-4">
+                Corretora: <strong>{{ user.brokerage.legal_name }}</strong>
+                {% if user.brokerage.cnpj %}(CNPJ {{ user.brokerage.cnpj }}){% endif %}
+                · Plano: <span class="badge bg-light-brand">{{ user.brokerage.get_plan_display }}</span>
+            </p>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="{% url 'clients:list' %}" class="btn btn-light-brand w-100">
+                        <i class="feather-users me-2"></i>Clientes
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'insurers:list' %}" class="btn btn-light-brand w-100">
+                        <i class="feather-shield me-2"></i>Seguradoras
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'policies:item_list' %}" class="btn btn-light-brand w-100">
+                        <i class="feather-package me-2"></i>Itens Cobertos
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'policies:proposal_list' %}" class="btn btn-light-brand w-100">
+                        <i class="feather-file-text me-2"></i>Propostas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

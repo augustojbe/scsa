@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir seguradora — SCSI{% endblock %}
+
+{% block page_title %}Excluir seguradora{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurers:list' %}">Seguradoras</a></li>
+    <li class="breadcrumb-item">Excluir</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-body">
+            <p class="fs-14 text-dark mb-4">
+                Tem certeza que deseja excluir a seguradora <strong>{{ object.name }}</strong>?
+                Esta ação não pode ser desfeita.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                    <a href="{% url 'insurers:list' %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

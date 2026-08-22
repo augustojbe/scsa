@@ -984,14 +984,13 @@ scsi_v2/
 ├── scripts/                   # deploy.sh, backup.sh
 │   ├── deploy.sh
 │   └── backup.sh
-├── docker/                    # Dockerfiles, entrypoints, compose/stack
-│   ├── Dockerfile
-│   ├── entrypoint-app.sh
-│   ├── entrypoint-celery.sh
-│   ├── docker-compose.yml
-│   ├── docker-stack.yml
-│   └── traefik/
-│       └── traefik.yml
+├── Dockerfile                 # Imagem da aplicação
+├── entrypoint-app.sh          # wait_for_db → migrate advisory lock → collectstatic → gunicorn/runserver
+├── entrypoint-celery.sh       # wait_for_db → celery worker/beat
+├── docker-compose.yml         # Ambiente local (app, postgres, celery_worker, celery_beat, rabbitmq, redis, traefik)
+├── docker-stack.yml           # Produção Docker Swarm (Sprint 30)
+├── traefik/
+│   └── traefik.yml            # Traefik produção (DNS-01, TLS wildcard)
 ├── requirements.txt
 ├── manage.py
 ├── .env                       # gitignored
@@ -1283,7 +1282,7 @@ CSRF_TRUSTED_ORIGINS=https://scsi.digital,https://*.scsi.digital
 
 ### 33.18 Configurar Traefik com DNS-01
 
-`docker/traefik/traefik.yml` (resumo das diretivas obrigatórias):
+`traefik/traefik.yml` (resumo das diretivas obrigatórias):
 
 ```yaml
 entryPoints:
@@ -1337,7 +1336,7 @@ forwardedHeaders:
 ### 33.19 Build e push da imagem
 
 ```bash
-docker build -t ghcr.io/pycodebr/scsi_v1:latest -f docker/Dockerfile .
+docker build -t ghcr.io/pycodebr/scsi_v1:latest -f Dockerfile .
 docker tag  ghcr.io/pycodebr/scsi_v1:latest ghcr.io/pycodebr/scsi_v1:<SHA>
 docker push ghcr.io/pycodebr/scsi_v1:latest
 docker push ghcr.io/pycodebr/scsi_v1:<SHA>
@@ -1346,7 +1345,7 @@ docker push ghcr.io/pycodebr/scsi_v1:<SHA>
 ### 33.20 Deploy do stack
 
 ```bash
-docker stack deploy -c docker/docker-stack.yml --with-registry-auth scsi_v1
+docker stack deploy -c docker-stack.yml --with-registry-auth scsi_v1
 ```
 
 ### 33.21 Verificar serviços
@@ -1623,71 +1622,71 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ### Sprint 2 — Docker Local
 
-- [ ] Criar `docker/Dockerfile`.
-- [ ] Criar `docker/entrypoint-app.sh` (`wait_for_db` → migrate advisory lock → collectstatic --clear).
-- [ ] Criar `docker/entrypoint-celery.sh` (`wait_for_db` apenas).
-- [ ] Criar `docker/docker-compose.yml` com app, postgres, celery_worker, celery_beat, rabbitmq, redis, traefik.
-- [ ] Adicionar healthchecks locais.
-- [ ] Validar `docker compose up` e app respondendo.
+- [x] Criar `Dockerfile` (na raiz).
+- [x] Criar `entrypoint-app.sh` (`wait_for_db` → migrate advisory lock → collectstatic --clear).
+- [x] Criar `entrypoint-celery.sh` (`wait_for_db` apenas).
+- [x] Criar `docker-compose.yml` (na raiz) com app, postgres, celery_worker, celery_beat, rabbitmq, redis, traefik.
+- [x] Adicionar healthchecks locais.
+- [x] Validar `docker compose up` e app respondendo.
 
 ### Sprint 3 — Configuração Django Base
 
-- [ ] Criar app `base` com `BaseModel` (`created_at`, `updated_at`), mixins, utils, constants.
-- [ ] Criar comando `wait_for_db`.
-- [ ] Criar view/rota `/health/` (sem banco, sem auth, retorna 200).
-- [ ] Configurar WhiteNoise `CompressedStaticFilesStorage`.
-- [ ] Configurar templates/base.html com herança e design system.
+- [x] Criar app `base` com `BaseModel` (`created_at`, `updated_at`), mixins, utils, constants.
+- [x] Criar comando `wait_for_db`.
+- [x] Criar view/rota `/health/` (sem banco, sem auth, retorna 200).
+- [x] Configurar WhiteNoise `CompressedStaticFilesStorage`.
+- [x] Configurar templates/base.html com herança e design system.
 
 ### Sprint 4 — Usuário Customizado com Login por Email
 
-- [ ] Criar custom user model em `core` (`email` como `USERNAME_FIELD`).
-- [ ] Configurar `AUTH_USER_MODEL`.
-- [ ] Criar fluxo de login por email (CBVs nativas do Django).
-- [ ] Criar recuperação de senha por email (templates nativos).
-- [ ] Configurar email backend via `.env`.
+- [x] Criar custom user model em `core` (`email` como `USERNAME_FIELD`).
+- [x] Configurar `AUTH_USER_MODEL`.
+- [x] Criar fluxo de login por email (CBVs nativas do Django).
+- [x] Criar recuperação de senha por email (templates nativos).
+- [x] Configurar email backend via `.env`.
 
 ### Sprint 5 — Multi-Tenant Base
 
-- [ ] Criar model `Brokerage` em `core`.
-- [ ] Criar `TenantManager` e `BaseTenantModel` em `base`.
-- [ ] Criar middleware de tenant (`request.brokerage`).
-- [ ] Vincular `User` à `Brokerage`.
-- [ ] Garantir que `User.brokerage` é obrigatório (exceto superuser).
+- [x] Criar model `Brokerage` em `core`.
+- [x] Criar `TenantManager` e `BaseTenantModel` em `base`.
+- [x] Criar middleware de tenant (`request.brokerage`).
+- [x] Vincular `User` à `Brokerage`.
+- [x] Garantir que `User.brokerage` é obrigatório (exceto superuser).
 
 ### Sprint 6 — Corretoras e Permissões
 
-- [ ] Criar app `accounts` com onboarding (corretora + usuário owner).
-- [ ] Cadastro de corretora com CNPJ + Razão Social obrigatórios.
-- [ ] Escolha de plano (free).
-- [ ] Definir roles/permissions (owner/admin, agent, producer, operational).
-- [ ] Mixins de permissão por role + tenant.
+- [x] Criar app `accounts` com onboarding (corretora + usuário owner).
+- [x] Cadastro de corretora com CNPJ + Razão Social obrigatórios.
+- [x] Escolha de plano (free).
+- [x] Definir roles/permissions (owner/admin, agent, producer, operational).
+- [x] Mixins de permissão por role + tenant.
 
 ### Sprint 7 — Clientes
 
-- [ ] Criar app `clients` com `Client` (tenant).
-- [ ] CRUD de clientes (CBVs).
-- [ ] Tela de detalhe do cliente.
-- [ ] Campo `ai_summary` (placeholder para Sprint 23).
-- [ ] Anexos de cliente (Sprint 14).
+- [x] Criar app `clients` com `Client` (tenant).
+- [x] CRUD de clientes (CBVs).
+- [x] Tela de detalhe do cliente.
+- [x] Campo `ai_summary` (placeholder para Sprint 23).
+- [x] Anexos de cliente (Sprint 14).
 
 ### Sprint 8 — Seguradoras e Ramos
 
-- [ ] Criar app `insurers` com `Insurer` e `Branch`.
-- [ ] CRUD de seguradoras e ramos.
-- [ ] Relacionar ramos com propostas/apólices.
+- [x] Criar app `insurers` com `Insurer` e `Branch`.
+- [x] CRUD de seguradoras e ramos.
+- [x] Relacionar ramos com propostas/apólices.
 
 ### Sprint 9 — Itens Cobertos e Coberturas
 
-- [ ] Criar `CoveredItem` e `Coverage` (app `policies`).
-- [ ] CRUD de coberturas.
-- [ ] CRUD de itens cobertos com atributos flexíveis (JSONField).
+- [x] Criar `CoveredItem` e `Coverage` (app `policies`).
+- [x] CRUD de coberturas.
+- [x] CRUD de itens cobertos com atributos flexíveis (JSONField).
 
 ### Sprint 10 — Propostas
 
-- [ ] Criar `Proposal` (tenant) com cliente, seguradora, ramo, coberturas, itens cobertos, prêmio, status.
-- [ ] CRUD de propostas (CBVs).
-- [ ] Anexos de proposta (Sprint 14).
-- [ ] Campo `ai_summary`.
+- [x] Criar `Proposal` (tenant) com cliente, seguradora, ramo, coberturas, itens cobertos, prêmio, status.
+- [x] CRUD de propostas (CBVs).
+- [x] Anexos de proposta (Sprint 14).
+- [x] Campo `ai_summary`.
 
 ### Sprint 11 — Apólices
 
@@ -1711,10 +1710,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ### Sprint 14 — Anexos Privados
 
-- [ ] Implementar anexos em clientes, propostas, apólices, sinistros.
-- [ ] Criar view segura de download (valida auth + brokerage + permissão).
-- [ ] Configurar `MEDIA_ROOT` em volume.
-- [ ] 404 para cross-tenant.
+- [ ] Implementar anexos em clientes, propostas, apólices, sinistros. *(clientes e propostas concluídos; apólices e sinistros pendem das Sprints 11/13)*
+- [x] Criar view segura de download (valida auth + brokerage + permissão).
+- [x] Configurar `MEDIA_ROOT` em volume.
+- [x] 404 para cross-tenant.
 
 ### Sprint 15 — CRM Grid
 
@@ -1823,7 +1822,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ### Sprint 30 — Docker Swarm
 
-- [ ] Criar `docker/docker-stack.yml` com serviços, volumes, redes, restart_policy, resources, update_config.
+- [ ] Criar `docker-stack.yml` com serviços, volumes, redes, restart_policy, resources, update_config.
 - [ ] Definir redes `traefik_public`, `scsi_v1_internal`, `scsi_v1_egress`.
 - [ ] Volumes nomeados (postgres, redis, rabbitmq, media, staticfiles, certs).
 - [ ] Healthchecks em todos os serviços.

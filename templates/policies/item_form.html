@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar item coberto{% else %}Novo item coberto{% endif %} — SCSI{% endblock %}
+
+{% block page_title %}{% if object %}Editar item coberto{% else %}Novo item coberto{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'policies:item_list' %}">Itens Cobertos</a></li>
+    <li class="breadcrumb-item">{% if object %}Editar{% else %}Novo{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <h5 class="m-b-0">{% if object %}Editar item coberto{% else %}Novo item coberto{% endif %}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.type.id_for_label }}" class="form-label">Tipo *</label>
+                        {{ form.type }}
+                    </div>
+                    <div class="col-md-8">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Descrição *</label>
+                        {{ form.description }}
+                        {% for error in form.description.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-12">
+                        <label for="{{ form.attributes.id_for_label }}" class="form-label">Atributos (JSON)</label>
+                        {{ form.attributes }}
+                        <div class="fs-12 text-muted mt-1">
+                            Detalhes do objeto segurado em JSON — ex.: placa do veículo, endereço do imóvel, destino da viagem.
+                        </div>
+                        {% for error in form.attributes.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% url 'policies:item_list' %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}SCSI — Sistema de Gestão para Corretora de Seguros{% endblock %}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/vendors.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/theme.min.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="nxl-navigation">
+        <div class="navbar-wrapper">
+            <div class="m-header">
+                <a href="{% url 'accounts:home' %}" class="b-brand">
+                    <img src="{% static 'images/logo-full.png' %}" alt="SCSI" class="logo logo-lg">
+                    <img src="{% static 'images/logo-abbr.png' %}" alt="SCSI" class="logo logo-sm">
+                </a>
+            </div>
+            <div class="navbar-content">
+                <ul class="nxl-navbar">
+                    <li class="nxl-item nxl-caption">
+                        <label>Gestão</label>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="{% url 'accounts:home' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-home"></i></span>
+                            <span class="nxl-mtext">Início</span>
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nxl-item">
+                        <a href="{% url 'clients:list' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-users"></i></span>
+                            <span class="nxl-mtext">Clientes</span>
+                        </a>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="{% url 'insurers:list' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-shield"></i></span>
+                            <span class="nxl-mtext">Seguradoras</span>
+                        </a>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="{% url 'insurers:branch_list' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-layers"></i></span>
+                            <span class="nxl-mtext">Ramos</span>
+                        </a>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="{% url 'policies:coverage_list' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-check-square"></i></span>
+                            <span class="nxl-mtext">Coberturas</span>
+                        </a>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="{% url 'policies:item_list' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-package"></i></span>
+                            <span class="nxl-mtext">Itens Cobertos</span>
+                        </a>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="{% url 'policies:proposal_list' %}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-file-text"></i></span>
+                            <span class="nxl-mtext">Propostas</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="nxl-header">
+        <div class="header-wrapper">
+            <div class="header-left d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="nxl-head-mobile-toggler" id="mobile-collapse">
+                    <div class="hamburger hamburger--arrowturn">
+                        <div class="hamburger-box">
+                            <div class="hamburger-inner"></div>
+                        </div>
+                    </div>
+                </a>
+                <div class="nxl-navigation-toggle">
+                    <a href="javascript:void(0);" id="menu-mini-button">
+                        <i class="feather-align-left"></i>
+                    </a>
+                    <a href="javascript:void(0);" id="menu-expend-button" style="display: none">
+                        <i class="feather-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="header-right ms-auto">
+                <div class="d-flex align-items-center">
+                    <div class="nxl-h-item d-none d-sm-flex">
+                        <div class="full-screen-switcher">
+                            <a href="javascript:void(0);" class="nxl-head-link me-0" onclick="$('body').fullScreenHelper('toggle');">
+                                <i class="feather-maximize maximize"></i>
+                                <i class="feather-minimize minimize"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nxl-h-item dark-light-theme">
+                        <a href="javascript:void(0);" class="nxl-head-link me-0 dark-button">
+                            <i class="feather-moon"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="nxl-head-link me-0 light-button" style="display: none">
+                            <i class="feather-sun"></i>
+                        </a>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <div class="nxl-h-item dropdown">
+                        <a href="javascript:void(0);" class="nxl-head-link me-3" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <div class="avatar-text avatar-md bg-primary text-white">{{ user.initials|default:'U' }}</div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown">
+                            <div class="dropdown-item px-3 py-2">
+                                <div class="fs-13 fw-semibold text-dark">{{ user.full_name }}</div>
+                                <div class="fs-11 text-muted">{{ user.email }}</div>
+                                <div class="fs-11 text-muted mt-1">{{ user.brokerage.trade_name|default:'—' }}</div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="feather-log-out me-2"></i>
+                                    Sair
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex align-items-center gap-2 me-3">
+                        <a href="{% url 'login' %}" class="btn btn-light-brand">Entrar</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">{% block page_title %}{% endblock %}</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        {% block breadcrumb %}{% endblock %}
+                    </ul>
+                </div>
+                <div class="page-header-right ms-auto">
+                    <div class="page-header-right-items">
+                        <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-content">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'js/vendors.min.js' %}"></script>
+    <script src="{% static 'js/common-init.min.js' %}"></script>
+    <script src="{% static 'js/theme-customizer-init.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

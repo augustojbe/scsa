@@ -45,14 +45,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
+    'base',
+    'accounts',
+    'clients',
+    'insurers',
+    'policies',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'core.middleware.TenantMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -85,6 +93,17 @@ DATABASES = {
         default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
     ),
 }
+
+
+# Authentication
+
+AUTH_USER_MODEL = 'core.User'
+
+LOGIN_URL = 'login'
+
+LOGIN_REDIRECT_URL = 'accounts:home'
+
+LOGOUT_REDIRECT_URL = 'landing'
 
 
 # Password validation
@@ -122,11 +141,33 @@ STATIC_URL = 'static/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
+
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Cache and Celery
+
+CACHES = {
+    'default': env.cache_url('REDIS_URL', default='locmem://'),
+}
+
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='amqp://localhost:5672//')
+
+CELERY_RESULT_BACKEND = env('REDIS_URL', default='redis://localhost:6379/0')
 
 
 # Email
@@ -135,3 +176,15 @@ EMAIL_BACKEND = env(
     'EMAIL_BACKEND',
     default='django.core.mail.backends.console.EmailBackend',
 )
+
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+
+EMAIL_PORT = env.int('EMAIL_PORT', default=25)
+
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=False)
+
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='no-reply@scsi.digital')

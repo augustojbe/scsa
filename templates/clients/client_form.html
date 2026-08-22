@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if client %}Editar cliente{% else %}Novo cliente{% endif %} — SCSI{% endblock %}
+
+{% block page_title %}{% if client %}Editar cliente{% else %}Novo cliente{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'clients:list' %}">Clientes</a></li>
+    <li class="breadcrumb-item">{% if client %}Editar{% else %}Novo{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <h5 class="m-b-0">{% if client %}Editar cliente{% else %}Novo cliente{% endif %}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Nome *</label>
+                        {{ form.name }}
+                        {% for error in form.name.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.type.id_for_label }}" class="form-label">Tipo *</label>
+                        {{ form.type }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.document.id_for_label }}" class="form-label">Documento (CPF/CNPJ)</label>
+                        {{ form.document }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label">Telefone</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-12">
+                        <h6 class="fs-13 fw-semibold mt-2 mb-0">Endereço</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.street.id_for_label }}" class="form-label">Logradouro</label>
+                        {{ form.street }}
+                    </div>
+                    <div class="col-md-2">
+                        <label for="{{ form.number.id_for_label }}" class="form-label">Número</label>
+                        {{ form.number }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.complement.id_for_label }}" class="form-label">Complemento</label>
+                        {{ form.complement }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.neighborhood.id_for_label }}" class="form-label">Bairro</label>
+                        {{ form.neighborhood }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.city.id_for_label }}" class="form-label">Cidade</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="col-md-2">
+                        <label for="{{ form.state.id_for_label }}" class="form-label">UF</label>
+                        {{ form.state }}
+                    </div>
+                    <div class="col-md-2">
+                        <label for="{{ form.zip_code.id_for_label }}" class="form-label">CEP</label>
+                        {{ form.zip_code }}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% if client %}{% url 'clients:detail' client.pk %}{% else %}{% url 'clients:list' %}{% endif %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

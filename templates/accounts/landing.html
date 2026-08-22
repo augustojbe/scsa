@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SCSI — Sistema de Gestão para Corretora de Seguros Inteligente</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/vendors.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/theme.min.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'landing' %}">
+                <img src="{% static 'images/logo-full.png' %}" alt="SCSI" style="max-height: 36px;">
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'login' %}" class="btn btn-light-brand">Entrar</a>
+                <a href="{% url 'accounts:signup' %}" class="btn btn-primary">Criar conta</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="py-5 bg-light">
+        <div class="container text-center py-5">
+            <h1 class="fw-bold text-dark mb-3">Gestão completa para a sua corretora de seguros</h1>
+            <p class="text-muted fs-6 mx-auto" style="max-width: 640px;">
+                Clientes, propostas, apólices, sinistros, renovações, comissões e CRM em um só lugar,
+                com inteligência artificial assistida e isolamento total de dados entre corretoras.
+            </p>
+            <div class="d-flex justify-content-center gap-2 mt-4">
+                <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-lg">
+                    Começar agora
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-light-brand btn-lg">
+                    Já tenho conta
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark">Planos</h2>
+                <p class="text-muted fs-12">Escolha o plano ideal para a sua corretora.</p>
+            </div>
+            <div class="row justify-content-center g-4">
+                <div class="col-md-4">
+                    <div class="card stretch stretch-full h-100">
+                        <div class="card-body text-center">
+                            <h3 class="fs-18 fw-bold text-dark">Free</h3>
+                            <div class="fs-1 fw-bold text-primary">R$ 0</div>
+                            <p class="text-muted fs-12 mb-4">Para começar a organizar a sua operação.</p>
+                            <ul class="list-unstyled text-start fs-13 mb-4">
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Até 5 usuários</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Clientes e apólices</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>CRM com kanban</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Relatórios PDF e CSV</li>
+                            </ul>
+                            <a href="{% url 'accounts:signup' %}" class="btn btn-primary w-100">Criar conta grátis</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stretch stretch-full h-100 opacity-50">
+                        <div class="card-body text-center">
+                            <h3 class="fs-18 fw-bold text-dark">Pro</h3>
+                            <div class="fs-1 fw-bold text-dark">R$ 149<span class="fs-13 text-muted">/mês</span></div>
+                            <p class="text-muted fs-12 mb-4">Para corretoras em crescimento.</p>
+                            <ul class="list-unstyled text-start fs-13 mb-4">
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Usuários ilimitados</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Agentes de IA</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Chat com IA</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Comissões e repasses</li>
+                            </ul>
+                            <button type="button" class="btn btn-light w-100" disabled>Em breve</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stretch stretch-full h-100 opacity-50">
+                        <div class="card-body text-center">
+                            <h3 class="fs-18 fw-bold text-dark">Business</h3>
+                            <div class="fs-1 fw-bold text-dark">R$ 299<span class="fs-13 text-muted">/mês</span></div>
+                            <p class="text-muted fs-12 mb-4">Para operações de grande porte.</p>
+                            <ul class="list-unstyled text-start fs-13 mb-4">
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Tudo do plano Pro</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Suporte prioritário</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>Onboarding dedicado</li>
+                                <li class="mb-2"><i class="feather-check text-success me-2"></i>API e integrações</li>
+                            </ul>
+                            <button type="button" class="btn btn-light w-100" disabled>Em breve</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-4 border-top">
+        <div class="container text-center text-muted fs-12">
+            © {% now 'Y' %} SCSI — scsi.digital · Sistema de Gestão para Corretora de Seguros Inteligente
+        </div>
+    </footer>
+
+    <script src="{% static 'js/vendors.min.js' %}"></script>
+</body>
+</html>
