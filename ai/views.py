@@ -112,7 +112,7 @@ class ChatSendView(BrokerageRequiredMixin, View):
 
         from ai.services import chat_reply
 
-        reply = chat_reply(session.title, user_message, '')
+        reply = chat_reply(request.brokerage.pk, session.title, user_message, '')
 
         def stream():
             for i in range(0, len(reply), 4):

@@ -4,13 +4,14 @@ from datetime import date, timedelta
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
+from faker import Faker
 
 from base.tenant import set_current_brokerage
+from base.utils import only_digits
 from base.constants import (
     CLAIM_OPEN,
     CLAIM_TYPE_CHOICES,
     COMMISSION_PENDING,
-    POLICY_ACTIVE,
     PROPOSAL_APPROVED,
     PROPOSAL_DRAFT,
     PROPOSAL_SUBMITTED,
@@ -29,18 +30,12 @@ from policies.models import (
     CoveredItem,
     Endorsement,
     Policy,
+    PolicyAttachment,
     Proposal,
+    ProposalAttachment,
 )
 from policies.services import generate_policy_from_proposal
 from renewals.models import Renewal
-
-CLIENT_NAMES = [
-    'Ana Paula Ribeiro', 'Bruno Carvalho', 'Carla Mendes', 'Diego Almeida',
-    'Elisa Farias', 'Fábio Nogueira', 'Gabriela Rocha', 'Heitor Lima',
-    'Isabela Castro', 'João Pedro Souza', 'Larissa Duarte', 'Marcos Vinícius',
-    'Natália Barros', 'Otávio Ramos', 'Patrícia Freitas', 'Rafael Teixeira',
-    'Sofia Martins', 'Thiago Correia', 'Vanessa Prado', 'William Ferreira',
-]
 
 INSURERS = [
     ('Porto Seguro', 'POSG'),
@@ -61,44 +56,85 @@ COVERAGES = {
     'Frota': ['Colisão', 'Roubo/Furto', 'Casco', 'Terceiros'],
 }
 
+BRANCH_ITEM_TYPE = {
+    'Automóvel': 'vehicle', 'Residencial': 'property', 'Vida': 'life',
+    'Viagem': 'travel', 'Empresarial': 'business', 'Frota': 'fleet_item',
+}
+
 
 class Command(BaseCommand):
-    help = 'Carrega dados fake realistas para demonstração.'
+    help = 'Carrega dados fake (Faker) realistas para demonstração.'
 
     @transaction.atomic
     def handle(self, *args, **options):
-        cnpj = '12.345.678/0001-90'
-        brokerage = Brokerage.objects.filter(cnpj='12345678000190').first()
+        self.fake = Faker('pt_BR')
+
+        cnpj = '12345678000190'
+        brokerage = Brokerage.objects.filter(cnpj=cnpj).first()
         if brokerage is None:
             brokerage = Brokerage.objects.create(
-                cnpj='12345678000190',
-                legal_name='Corretora Demo Ltda',
-                trade_name='Demo Corretora',
-                email='contato@demo.scsi.digital',
-                phone='(11) 4002-8922',
-                city='São Paulo',
-                state='SP',
+                cnpj=cnpj,
+                legal_name=self.fake.company() + ' Corretora Ltda',
+                trade_name=self.fake.company_suffix(),
+                email=self.fake.company_email(),
+                phone=self.fake.phone_number(),
+                street=self.fake.street_name(),
+                number=str(self.fake.random_int(1, 9999)),
+                neighborhood=self.fake.neighborhood(),
+                city=self.fake.city(),
+                state=self.fake.state_abbr(),
+                zip_code=self.fake.postcode(),
             )
         set_current_brokerage(brokerage)
 
+        self._reset(brokerage)
+        self._create_user(brokerage)
+        self._load_base(brokerage)
+        self._load_commercial(brokerage)
+        self._load_crm(brokerage)
+        self.stdout.write(
+            self.style.SUCCESS(f'Dados fake carregados para {brokerage.trade_name}.')
+        )
+
+    def _reset(self, brokerage):
+        """Remove dados de domínio da corretora demo para regenerar do zero."""
+        from base.models import Notification
+        from ai.models import ChatMessage, ChatSession
+        from django.contrib.auth import get_user_model
+
+        models = [
+            ChatMessage, ChatSession, Notification,
+            Commission, Renewal, Endorsement, Claim,
+            PolicyAttachment, ProposalAttachment,
+            Policy, Proposal, Deal, PipelineStage, Pipeline,
+            CoveredItem, Coverage, Producer, Agent,
+            Branch, Insurer, Client,
+        ]
+        for model in models:
+            if hasattr(model, 'all_objects'):
+                model.all_objects.filter(brokerage=brokerage).delete()
+        get_user_model().objects.filter(brokerage=brokerage).delete()
+
+    def _create_user(self, brokerage):
+        email = 'augustojbe@gmail.com'
+        password = '1988jaguaribe'
         user, _ = User.objects.get_or_create(
-            email='admin@demo.scsi.digital',
+            email=email,
             defaults={
-                'full_name': 'Admin Demo',
+                'full_name': self.fake.name(),
                 'brokerage': brokerage,
                 'role': 'owner',
                 'is_staff': True,
             },
         )
-        if not user.has_usable_password():
-            user.set_password('admin123')
-            user.save()
-
-        self.stdout.write(f'Brokerage: {brokerage.legal_name}')
-        self._load_base(brokerage)
-        self._load_commercial(brokerage)
-        self._load_crm(brokerage)
-        self.stdout.write(self.style.SUCCESS('Dados fake carregados com sucesso.'))
+        # Sempre garante credenciais de demonstração conhecidas.
+        user.brokerage = brokerage
+        user.role = 'owner'
+        user.is_staff = True
+        user.is_active = True
+        user.set_password(password)
+        user.save()
+        self.stdout.write(f'Usuário demo: {email} / {password}')
 
     def _load_base(self, brokerage):
         today = timezone.localdate()
@@ -118,25 +154,29 @@ class Command(BaseCommand):
             branches.append(branch)
             for cov_name in COVERAGES[name]:
                 Coverage.all_objects.get_or_create(
-                    brokerage=brokerage,
-                    name=cov_name,
-                    defaults={'branch': branch},
+                    brokerage=brokerage, name=cov_name, defaults={'branch': branch}
                 )
 
         clients = []
-        for i, name in enumerate(CLIENT_NAMES):
-            client, _ = Client.all_objects.get_or_create(
+        for _ in range(25):
+            is_pj = self.fake.boolean(chance_of_getting_true=25)
+            client = Client.all_objects.create(
                 brokerage=brokerage,
-                name=name,
-                defaults={
-                    'type': 'pf' if i % 4 else 'pj',
-                    'document': f'{i:011d}' if i % 4 else f'{i:014d}',
-                    'email': f'cliente{i}@email.com',
-                    'phone': f'(11) 9{i:08d}',
-                    'city': random.choice(['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Curitiba']),
-                    'state': random.choice(['SP', 'RJ', 'MG', 'PR']),
-                    'created_at': today - timedelta(days=random.randint(30, 700)),
-                },
+                name=self.fake.company() if is_pj else self.fake.name(),
+                type='pj' if is_pj else 'pf',
+                document=only_digits(self.fake.cnpj()) if is_pj else only_digits(self.fake.cpf()),
+                email=self.fake.email(),
+                phone=self.fake.phone_number(),
+                street=self.fake.street_name(),
+                number=str(self.fake.random_int(1, 9999)),
+                complement=self.fake.word() if self.fake.boolean(30) else '',
+                neighborhood=self.fake.neighborhood(),
+                city=self.fake.city(),
+                state=self.fake.state_abbr(),
+                zip_code=self.fake.postcode(),
+                created_at=self.fake.date_time_between(
+                    start_date='-2y', end_date='-30d', tzinfo=timezone.get_current_timezone()
+                ),
             )
             clients.append(client)
 
@@ -145,108 +185,123 @@ class Command(BaseCommand):
         self.clients = clients
         self.brokerage = brokerage
 
+    def _money(self, low, high):
+        return round(self.fake.random_int(int(low * 100), int(high * 100)) / 100, 2)
+
     def _load_commercial(self, brokerage):
         today = timezone.localdate()
         agents = []
-        for i in range(4):
-            agent, _ = Agent.all_objects.get_or_create(
-                brokerage=brokerage,
-                name=random.choice(['Agente Alfa', 'Agente Beta', 'Agente Gama', 'Agente Delta']),
-                defaults={
-                    'document': f'{i+1:011d}',
-                    'commission_rate': random.choice([10, 15, 20, 25]),
-                },
+        for _ in range(4):
+            agents.append(
+                Agent.all_objects.create(
+                    brokerage=brokerage,
+                    name=self.fake.name(),
+                    document=only_digits(self.fake.cpf()),
+                    type='person',
+                    commission_rate=self.fake.random_element([10, 15, 20, 25]),
+                )
             )
-            agents.append(agent)
 
         producers = []
-        for i in range(6):
-            producer, _ = Producer.all_objects.get_or_create(
-                brokerage=brokerage,
-                name=random.choice([
-                    'Produtor 01', 'Produtor 02', 'Produtor 03',
-                    'Produtor 04', 'Produtor 05', 'Produtor 06',
-                ]),
-                defaults={
-                    'agent': random.choice(agents) if i % 3 else None,
-                    'document': f'2{i:010d}',
-                    'commission_rate': random.choice([5, 8, 10, 12]),
-                },
+        for _ in range(6):
+            producers.append(
+                Producer.all_objects.create(
+                    brokerage=brokerage,
+                    agent=self.fake.random_element(agents) if self.fake.boolean(70) else None,
+                    name=self.fake.name(),
+                    document=only_digits(self.fake.cpf()),
+                    commission_rate=self.fake.random_element([5, 8, 10, 12]),
+                )
             )
-            producers.append(producer)
 
         for client in self.clients:
-            branch = random.choice(self.branches)
-            insurer = random.choice(self.insurers)
-            coverage = list(Coverage.all_objects.filter(branch=branch))[:random.randint(1, 3)]
-            item_type = {
-                'Automóvel': 'vehicle', 'Residencial': 'property', 'Vida': 'life',
-                'Viagem': 'travel', 'Empresarial': 'business', 'Frota': 'fleet_item',
-            }[branch.name]
-            item, _ = CoveredItem.all_objects.get_or_create(
+            branch = self.fake.random_element(self.branches)
+            insurer = self.fake.random_element(self.insurers)
+            coverage = list(
+                Coverage.all_objects.filter(branch=branch)
+            )[:self.fake.random_int(1, 3)]
+            item_type = BRANCH_ITEM_TYPE[branch.name]
+            item = CoveredItem.all_objects.create(
                 brokerage=brokerage,
                 description=f'{item_type} de {client.name}',
-                defaults={
-                    'type': item_type,
-                    'attributes': {
-                        'marca': random.choice(['Fiat', 'VW', 'GM', 'Toyota']),
-                        'ano': random.randint(2015, 2024),
-                    },
-                },
+                type=item_type,
+                attributes={
+                    'marca': self.fake.random_element(['Fiat', 'VW', 'GM', 'Toyota', 'Honda']),
+                    'ano': self.fake.random_int(2015, 2024),
+                    'placa': self.fake.license_plate(),
+                } if item_type == 'vehicle' else {'detalhe': self.fake.text(20)},
             )
 
-            premium = round(random.uniform(500, 5000), 2)
+            premium = self._money(500, 5000)
             proposal = Proposal.all_objects.create(
                 brokerage=brokerage,
                 client=client,
                 insurer=insurer,
                 branch=branch,
-                status=random.choice([PROPOSAL_DRAFT, PROPOSAL_SUBMITTED, PROPOSAL_APPROVED]),
+                status=self.fake.random_element(
+                    [PROPOSAL_DRAFT, PROPOSAL_SUBMITTED, PROPOSAL_APPROVED]
+                ),
                 premium=premium,
-                created_at=today - timedelta(days=random.randint(10, 200)),
+                notes=self.fake.sentence() if self.fake.boolean(40) else '',
+                created_at=self.fake.date_time_between(
+                    start_date='-8m', end_date='-1d', tzinfo=timezone.get_current_timezone()
+                ),
             )
             proposal.coverages.set(coverage)
             proposal.covered_items.set([item])
 
-            if random.random() < 0.6:
+            if self.fake.boolean(60):
                 policy, created = generate_policy_from_proposal(proposal)
                 if created:
-                    policy.start_date = today - timedelta(days=random.randint(30, 300))
+                    policy.start_date = self.fake.date_between(
+                        start_date='-1y', end_date='-1m'
+                    )
                     policy.end_date = policy.start_date + timedelta(days=365)
+                    policy.notes = self.fake.sentence() if self.fake.boolean(30) else ''
                     policy.save()
 
-                    if random.random() < 0.4:
+                    if self.fake.boolean(40):
                         Endorsement.all_objects.create(
                             brokerage=brokerage,
                             policy=policy,
-                            type=random.choice(['inclusion', 'exclusion', 'alteration']),
-                            description='Endosso de demonstração',
-                            effective_date=today - timedelta(days=random.randint(1, 90)),
+                            type=self.fake.random_element(
+                                ['inclusion', 'exclusion', 'alteration']
+                            ),
+                            description=self.fake.sentence(),
+                            effective_date=self.fake.date_between(
+                                start_date='-3m', end_date='today'
+                            ),
                         )
 
-                    if random.random() < 0.5:
+                    if self.fake.boolean(50):
                         Claim.all_objects.create(
                             brokerage=brokerage,
                             policy=policy,
                             covered_item=item,
-                            type=random.choice([c for c, _ in CLAIM_TYPE_CHOICES]),
+                            type=self.fake.random_element([c for c, _ in CLAIM_TYPE_CHOICES]),
                             status=CLAIM_OPEN,
-                            description='Sinistro de demonstração',
-                            reserved_amount=round(random.uniform(1000, 20000), 2),
-                            reported_at=timezone.now() - timedelta(days=random.randint(1, 120)),
+                            description=self.fake.paragraph(),
+                            reserved_amount=self._money(1000, 20000),
+                            reported_at=self.fake.date_time_between(
+                                start_date='-4m', end_date='-1d',
+                                tzinfo=timezone.get_current_timezone(),
+                            ),
                         )
 
-                    if random.random() < 0.7:
+                    if self.fake.boolean(70):
                         Renewal.all_objects.create(
                             brokerage=brokerage,
                             policy=policy,
                             client=client,
                             due_date=policy.end_date - timedelta(days=30),
-                            status=random.choice([RENEWAL_PENDING, RENEWAL_CONTACTED]),
+                            status=self.fake.random_element(
+                                [RENEWAL_PENDING, RENEWAL_CONTACTED]
+                            ),
+                            notes=self.fake.sentence() if self.fake.boolean(30) else '',
                         )
 
-                    if random.random() < 0.6:
-                        total = round(random.uniform(200, 3000), 2)
+                    if self.fake.boolean(60):
+                        total = self._money(200, 3000)
                         commission = Commission.all_objects.create(
                             brokerage=brokerage,
                             policy=policy,
@@ -261,9 +316,11 @@ class Command(BaseCommand):
 
     def _load_crm(self, brokerage):
         pipeline, _ = Pipeline.all_objects.get_or_create(
-            brokerage=brokerage, is_default=True, defaults={'name': 'Funil Comercial'}
+            brokerage=brokerage,
+            is_default=True,
+            defaults={'name': 'Funil Comercial'},
         )
-        stage_names = [
+        stage_specs = [
             ('Lead', '#0d6efd', 1),
             ('Qualificação', '#0dcaf0', 2),
             ('Proposta enviada', '#ffc107', 3),
@@ -271,22 +328,26 @@ class Command(BaseCommand):
             ('Fechado', '#198754', 5),
         ]
         stages = []
-        for name, color, order in stage_names:
+        for name, color, order in stage_specs:
             stage, _ = PipelineStage.all_objects.get_or_create(
-                brokerage=brokerage, pipeline=pipeline, order=order,
+                brokerage=brokerage,
+                pipeline=pipeline,
+                order=order,
                 defaults={'name': name, 'color': color},
             )
             stages.append(stage)
 
-        for i, client in enumerate(random.sample(self.clients, k=min(12, len(self.clients)))):
-            stage = random.choice(stages)
+        for i, client in enumerate(
+            self.fake.random_elements(self.clients, length=12, unique=True)
+        ):
             Deal.all_objects.create(
                 brokerage=brokerage,
                 pipeline=pipeline,
-                stage=stage,
+                stage=self.fake.random_element(stages),
                 client=client,
                 title=f'Negociação {client.name}',
-                value=round(random.uniform(1000, 20000), 2),
-                expected_close_date=timezone.localdate() + timedelta(days=random.randint(1, 90)),
+                value=self._money(1000, 20000),
+                expected_close_date=timezone.localdate()
+                + timedelta(days=self.fake.random_int(1, 90)),
                 order=i,
             )
