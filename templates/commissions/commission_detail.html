@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Comissão — {{ commission.policy.number }}{% endblock %}
+
+{% block page_title %}Comissão — {{ commission.policy.number }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'commissions:list' %}">Comissões</a></li>
+    <li class="breadcrumb-item">{{ commission.policy.number }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'commissions:edit' commission.pk %}" class="btn btn-light-brand">
+        <i class="feather-edit-2 me-2"></i>
+        Editar
+    </a>
+    <a href="{% url 'commissions:delete' commission.pk %}" class="btn btn-light text-danger">
+        <i class="feather-trash-2 me-2"></i>
+        Excluir
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header"><h5 class="m-b-0">Detalhes da comissão</h5></div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6"><div class="fs-12 text-muted">Apólice</div><div class="fs-13 fw-semibold"><a href="{% url 'policies:policy_detail' commission.policy.pk %}">{{ commission.policy.number }}</a></div></div>
+                <div class="col-md-6"><div class="fs-12 text-muted">Cliente</div><div class="fs-13 fw-semibold"><a href="{% url 'clients:detail' commission.client.pk %}">{{ commission.client.name }}</a></div></div>
+                <div class="col-md-6"><div class="fs-12 text-muted">Seguradora</div><div class="fs-13 fw-semibold">{{ commission.insurer.name }}</div></div>
+                <div class="col-md-6"><div class="fs-12 text-muted">Status</div><span class="badge bg-soft-primary text-primary">{{ commission.get_status_display }}</span></div>
+            </div>
+            <hr class="border-dashed my-4">
+            <h6 class="fw-bold text-dark mb-3">Repasses</h6>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="p-3 border rounded bg-gray-200">
+                        <div class="fs-12 text-muted">Comissão total</div>
+                        <div class="fs-4 fw-bold text-dark">R$ {{ commission.total_amount|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="fs-12 text-muted">Repasse agente{% if commission.agent %} ({{ commission.agent.name }}){% endif %}</div>
+                        <div class="fs-4 fw-bold text-dark">R$ {{ commission.agent_share|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="fs-12 text-muted">Repasse produtor{% if commission.producer %} ({{ commission.producer.name }}){% endif %}</div>
+                        <div class="fs-4 fw-bold text-dark">R$ {{ commission.producer_share|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="fs-12 text-muted">Líquido corretora</div>
+                        <div class="fs-4 fw-bold text-success">R$ {{ commission.brokerage_share|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="fs-12 text-muted mt-3">Calculado em {{ commission.computed_at|date:'d/m/Y H:i'|default:'—' }}</div>
+        </div>
+    </div>
+{% endblock %}

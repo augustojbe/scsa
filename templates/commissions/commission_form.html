@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar comissão{% else %}Nova comissão{% endif %} — SCSI{% endblock %}
+
+{% block page_title %}{% if object %}Editar comissão{% else %}Nova comissão{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'commissions:list' %}">Comissões</a></li>
+    <li class="breadcrumb-item">{% if object %}Editar{% else %}Nova{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <h5 class="m-b-0">{% if object %}Editar comissão{% else %}Nova comissão{% endif %}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.policy.id_for_label }}" class="form-label">Apólice *</label>
+                        {{ form.policy }}
+                        {% for e in form.policy.errors %}<div class="text-danger fs-12">{{ e }}</div>{% endfor %}
+                        <div class="fs-11 text-muted mt-1">Seguradora e cliente são preenchidos automaticamente.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.total_amount.id_for_label }}" class="form-label">Comissão total (R$) *</label>
+                        {{ form.total_amount }}
+                        {% for e in form.total_amount.errors %}<div class="text-danger fs-12">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.agent.id_for_label }}" class="form-label">Agente</label>
+                        {{ form.agent }}
+                        <div class="fs-11 text-muted mt-1">Repasse calculado pela taxa do agente.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.producer.id_for_label }}" class="form-label">Produtor</label>
+                        {{ form.producer }}
+                        <div class="fs-11 text-muted mt-1">Repasse calculado pela taxa do produtor.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% if object %}{% url 'commissions:detail' object.pk %}{% else %}{% url 'commissions:list' %}{% endif %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

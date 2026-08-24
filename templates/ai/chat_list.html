@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat com IA — SCSI{% endblock %}
+
+{% block page_title %}Chat com IA{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item">Chat com IA</li>
+{% endblock %}
+
+{% block page_actions %}
+    <form method="post" action="{% url 'ai:chat_create' %}" class="d-flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="title" class="form-control" placeholder="Título da nova conversa..." style="max-width: 260px;">
+        <button type="submit" class="btn btn-primary text-nowrap">
+            <i class="feather-plus me-2"></i>Nova conversa
+        </button>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Mensagens</th>
+                            <th>Criada em</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in sessions %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'ai:chat_detail' session.pk %}" class="fw-semibold text-dark">
+                                    <i class="feather-message-circle me-2 text-muted"></i>{{ session.title }}
+                                </a>
+                            </td>
+                            <td>{{ session.messages.count }}</td>
+                            <td class="fs-12">{{ session.created_at|date:'d/m/Y H:i' }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'ai:chat_detail' session.pk %}" class="btn btn-sm btn-light-brand">
+                                    <i class="feather-message-circle"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                Você ainda não tem conversas. Crie uma para conversar com o agente.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

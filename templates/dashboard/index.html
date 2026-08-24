@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — SCSI{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Início</a></li>
+    <li class="breadcrumb-item">Dashboard</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .funnel-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .funnel-bar { height: 38px; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; color: #fff; font-size: 13px; font-weight: 600; min-width: 60px; }
+    .funnel-count { width: 40px; text-align: center; font-weight: 700; color: #495057; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-3">
+                        <div class="avatar-text avatar-lg bg-gray-200"><i class="feather-users"></i></div>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark">{{ total_clients }}</div>
+                    <h3 class="fs-13 fw-semibold text-truncate-1-line">Clientes</h3>
+                    <div class="fs-11 text-muted">{{ clients_pf }} PF · {{ clients_pj }} PJ</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="avatar-text avatar-lg bg-gray-200 mb-3"><i class="feather-file"></i></div>
+                    <div class="fs-4 fw-bold text-dark">{{ total_policies }}</div>
+                    <h3 class="fs-13 fw-semibold text-truncate-1-line">Apólices</h3>
+                    <div class="fs-11 text-muted">{{ active_policies }} ativas</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="avatar-text avatar-lg bg-gray-200 mb-3"><i class="feather-dollar-sign"></i></div>
+                    <div class="fs-4 fw-bold text-dark">R$ {{ premium_total|floatformat:2 }}</div>
+                    <h3 class="fs-13 fw-semibold text-truncate-1-line">Prêmio total</h3>
+                    <div class="fs-11 text-muted">{{ total_proposals }} propostas</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="avatar-text avatar-lg bg-gray-200 mb-3"><i class="feather-award"></i></div>
+                    <div class="fs-4 fw-bold text-dark">R$ {{ commission_total|floatformat:2 }}</div>
+                    <h3 class="fs-13 fw-semibold text-truncate-1-line">Comissões</h3>
+                    <div class="fs-11 text-muted">Líquido corretora: R$ {{ brokerage_share|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-xxl-8 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-header"><h5 class="m-b-0">Apólices por ramo</h5></div>
+                <div class="card-body"><div id="chart-branch"></div></div>
+            </div>
+        </div>
+        <div class="col-xxl-4 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-header"><h5 class="m-b-0">Clientes por tipo</h5></div>
+                <div class="card-body"><div id="chart-client-type"></div></div>
+            </div>
+        </div>
+        <div class="col-xxl-8 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-header"><h5 class="m-b-0">Apólices por seguradora</h5></div>
+                <div class="card-body"><div id="chart-insurer"></div></div>
+            </div>
+        </div>
+        <div class="col-xxl-4 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-header">
+                    <h5 class="m-b-0">Funil de negociações</h5>
+                    <span class="fs-11 text-muted">Etapas do pipeline</span>
+                </div>
+                <div class="card-body">
+                    {% for stage in funnel %}
+                    <div class="funnel-row">
+                        <div class="funnel-count">{{ stage.count }}</div>
+                        <div class="funnel-bar" style="width: {{ stage.width }}%; background-color: {{ stage.color }};">
+                            {{ stage.name }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted fs-12 mb-0">Nenhum pipeline com etapas cadastrado.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="fs-4 fw-bold text-dark">{{ total_insurers }}</div>
+                    <h3 class="fs-13 fw-semibold">Seguradoras</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="fs-4 fw-bold text-dark">{{ total_claims }}</div>
+                    <h3 class="fs-13 fw-semibold">Sinistros</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="fs-4 fw-bold text-dark">{{ renewals_upcoming }}</div>
+                    <h3 class="fs-13 fw-semibold">Renovações próximas</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="fs-4 fw-bold text-danger">{{ renewals_overdue }}</div>
+                    <h3 class="fs-13 fw-semibold">Renovações vencidas</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/apexcharts.min.js' %}"></script>
+<script>
+(function () {
+    var branchData = {{ policies_by_branch|safe }};
+    new ApexCharts(document.querySelector('#chart-branch'), {
+        chart: { type: 'bar', height: 260, toolbar: { show: false } },
+        plotOptions: { bar: { borderRadius: 4 } },
+        series: [{ name: 'Apólices', data: branchData.map(function (d) { return d.value; }) }],
+        xaxis: { categories: branchData.map(function (d) { return d.branch__name || '—'; }) },
+        colors: ['#0d6efd']
+    }).render();
+
+    var clientType = {{ clients_by_type|safe }};
+    new ApexCharts(document.querySelector('#chart-client-type'), {
+        chart: { type: 'donut', height: 260 },
+        labels: clientType.map(function (d) { return d.name; }),
+        series: clientType.map(function (d) { return d.value; }),
+        colors: ['#0d6efd', '#20c997']
+    }).render();
+
+    var insurerData = {{ policies_by_insurer|safe }};
+    new ApexCharts(document.querySelector('#chart-insurer'), {
+        chart: { type: 'bar', height: 260, toolbar: { show: false } },
+        plotOptions: { bar: { borderRadius: 4, horizontal: true } },
+        series: [{ name: 'Apólices', data: insurerData.map(function (d) { return d.value; }) }],
+        xaxis: { categories: insurerData.map(function (d) { return d.insurer__name || '—'; }) },
+        colors: ['#20c997']
+    }).render();
+})();
+</script>
+{% endblock %}

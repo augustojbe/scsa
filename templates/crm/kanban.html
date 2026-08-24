@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}CRM Kanban — SCSI{% endblock %}
+
+{% block page_title %}CRM Kanban{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item">CRM</li>
+    <li class="breadcrumb-item">Kanban</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'crm:deal_list' %}" class="btn btn-light-brand">
+        <i class="feather-grid me-2"></i>
+        Grid
+    </a>
+    <a href="{% url 'crm:pipeline_list' %}" class="btn btn-light-brand">
+        <i class="feather-sliders me-2"></i>
+        Pipelines
+    </a>
+    <a href="{% url 'crm:deal_create' %}" class="btn btn-primary">
+        <i class="feather-plus me-2"></i>
+        Nova negociação
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label class="fs-12 text-muted mb-0">Pipeline:</label>
+            <select name="pipeline" class="form-select form-select-sm" style="max-width: 260px;" onchange="this.form.submit()">
+                {% for p in pipelines %}
+                <option value="{{ p.pk }}" {% if pipeline and p.pk == pipeline.pk %}selected{% endif %}>{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% if pipeline %}
+        <a href="{% url 'crm:pipeline_detail' pipeline.pk %}" class="btn btn-sm btn-light">
+            <i class="feather-sliders me-1"></i>Gerenciar etapas
+        </a>
+        {% endif %}
+    </div>
+
+    {% if not pipeline %}
+    <div class="card stretch stretch-full">
+        <div class="card-body text-center text-muted py-5">
+            Nenhum pipeline cadastrado.
+            <a href="{% url 'crm:pipeline_create' %}">Crie um pipeline</a> e suas etapas para começar.
+        </div>
+    </div>
+    {% else %}
+    <div class="d-flex gap-3 overflow-auto pb-2" id="kanban" style="align-items: flex-start;">
+        {% for column in stages %}
+        <div class="card stretch stretch-full" style="min-width: 300px; max-width: 300px;">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge rounded-pill" style="background-color: {{ column.stage.color }}; color:#fff;">&nbsp;</span>
+                    <h6 class="m-b-0 fs-13 fw-bold text-dark">{{ column.stage.name }}</h6>
+                    <span class="badge bg-gray-200 text-muted">{{ column.deals|length }}</span>
+                </div>
+                <a href="{% url 'crm:deal_create' %}?stage={{ column.stage.pk }}" class="btn btn-sm btn-light">
+                    <i class="feather-plus"></i>
+                </a>
+            </div>
+            <div class="card-body pt-2 kanban-col" data-stage="{{ column.stage.pk }}" style="min-height: 300px;">
+                {% for deal in column.deals %}
+                <div class="card border mb-2 kanban-card" draggable="true" data-id="{{ deal.pk }}">
+                    <div class="card-body p-3">
+                        <a href="{% url 'crm:deal_detail' deal.pk %}" class="fs-13 fw-semibold text-dark text-decoration-none">
+                            {{ deal.title }}
+                        </a>
+                        {% if deal.client %}
+                        <div class="fs-12 text-muted mt-1"><i class="feather-user me-1"></i>{{ deal.client.name }}</div>
+                        {% endif %}
+                        <div class="d-flex align-items-center justify-content-between mt-2">
+                            <span class="fs-12 fw-semibold text-dark">R$ {{ deal.value|floatformat:2 }}</span>
+                            {% if deal.expected_close_date %}
+                            <span class="fs-11 text-muted">{{ deal.expected_close_date|date:'d/m' }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted fs-12 py-4">Nenhuma negociação</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var csrf = '{{ csrf_token }}';
+    var dragId = null;
+
+    document.querySelectorAll('.kanban-card').forEach(function (card) {
+        card.addEventListener('dragstart', function (e) {
+            dragId = card.dataset.id;
+            card.classList.add('opacity-50');
+        });
+        card.addEventListener('dragend', function (e) {
+            card.classList.remove('opacity-50');
+        });
+    });
+
+    document.querySelectorAll('.kanban-col').forEach(function (col) {
+        col.addEventListener('dragover', function (e) {
+            e.preventDefault();
+        });
+        col.addEventListener('drop', function (e) {
+            e.preventDefault();
+            var stageId = col.dataset.stage;
+            if (!dragId) return;
+            fetch('{% url "crm:deal_move" 0 %}'.replace('0', dragId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf
+                },
+                body: JSON.stringify({stage_id: stageId})
+            }).then(function (r) {
+                if (r.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Não foi possível mover a negociação.');
+                }
+            });
+        });
+    });
+})();
+</script>
+{% endblock %}

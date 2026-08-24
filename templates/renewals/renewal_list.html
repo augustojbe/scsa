@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Renovações — SCSI{% endblock %}
+
+{% block page_title %}Renovações{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item">Renovações</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'renewals:create' %}" class="btn btn-primary">
+        <i class="feather-plus me-2"></i>
+        Nova renovação
+    </a>
+{% endblock %}
+
+{% block content %}
+    {% if overdue_count %}
+    <div class="alert alert-warning d-flex align-items-center">
+        <i class="feather-alert-triangle me-2"></i>
+        <span>
+            {{ overdue_count }} renovação(ões) <strong>vencida(s)</strong> aguardando ação.
+        </span>
+    </div>
+    {% endif %}
+    {% if upcoming_count %}
+    <div class="alert alert-info d-flex align-items-center">
+        <i class="feather-clock me-2"></i>
+        <span>
+            {{ upcoming_count }} renovação(ões) <strong>próximas</strong> do vencimento.
+        </span>
+    </div>
+    {% endif %}
+
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <form method="get" class="d-flex gap-2 flex-wrap">
+                <div class="input-group" style="max-width: 360px;">
+                    <span class="input-group-text"><i class="feather-search fs-6 text-muted"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por apólice ou cliente..." value="{{ search }}">
+                </div>
+                <select name="status" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+                    <option value="">Todos os status</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pendente</option>
+                    <option value="contacted" {% if request.GET.status == 'contacted' %}selected{% endif %}>Contatado</option>
+                    <option value="renewed" {% if request.GET.status == 'renewed' %}selected{% endif %}>Renovado</option>
+                    <option value="lost" {% if request.GET.status == 'lost' %}selected{% endif %}>Perdido</option>
+                </select>
+                <select name="scope" class="form-select" style="max-width: 180px;" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    <option value="upcoming" {% if request.GET.scope == 'upcoming' %}selected{% endif %}>Próximas</option>
+                    <option value="overdue" {% if request.GET.scope == 'overdue' %}selected{% endif %}>Vencidas</option>
+                </select>
+                <button type="submit" class="btn btn-light-brand">Buscar</button>
+                {% if search or request.GET.status or request.GET.scope %}
+                <a href="{% url 'renewals:list' %}" class="btn btn-light">Limpar</a>
+                {% endif %}
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Apólice</th>
+                            <th>Cliente</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for renewal in renewals %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'policies:policy_detail' renewal.policy.pk %}" class="fw-semibold text-dark">
+                                    {{ renewal.policy.number }}
+                                </a>
+                            </td>
+                            <td>{{ renewal.client.name }}</td>
+                            <td>
+                                {{ renewal.due_date|date:'d/m/Y' }}
+                                {% if renewal.is_overdue %}
+                                <span class="badge bg-danger-subtle text-danger ms-1">Vencida</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if renewal.status == 'pending' %}
+                                <span class="badge bg-warning-subtle text-warning">Pendente</span>
+                                {% elif renewal.status == 'contacted' %}
+                                <span class="badge bg-info-subtle text-info">Contatado</span>
+                                {% elif renewal.status == 'renewed' %}
+                                <span class="badge bg-success-subtle text-success">Renovado</span>
+                                {% else %}
+                                <span class="badge bg-gray-200 text-muted">Perdido</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'renewals:detail' renewal.pk %}" class="btn btn-sm btn-light-brand">
+                                    <i class="feather-eye"></i>
+                                </a>
+                                <a href="{% url 'renewals:edit' renewal.pk %}" class="btn btn-sm btn-light">
+                                    <i class="feather-edit-2"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Nenhuma renovação encontrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

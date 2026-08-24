@@ -51,6 +51,16 @@ INSTALLED_APPS = [
     'clients',
     'insurers',
     'policies',
+    'claims',
+    'crm',
+    'renewals',
+    'agents',
+    'commissions',
+    'reports',
+    'dashboard',
+    'ai',
+    'dj_control_room_base',
+    'dj_celery_panel',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'base.context_processors.notifications',
             ],
         },
     },
@@ -101,7 +112,7 @@ AUTH_USER_MODEL = 'core.User'
 
 LOGIN_URL = 'login'
 
-LOGIN_REDIRECT_URL = 'accounts:home'
+LOGIN_REDIRECT_URL = 'dashboard:index'
 
 LOGOUT_REDIRECT_URL = 'landing'
 

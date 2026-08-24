@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load markdown_tags %}
+
+{% block title %}Sinistro {{ claim.number }} — SCSI{% endblock %}
+
+{% block page_title %}Sinistro {{ claim.number }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'claims:list' %}">Sinistros</a></li>
+    <li class="breadcrumb-item">{{ claim.number }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'claims:edit' claim.pk %}" class="btn btn-light-brand">
+        <i class="feather-edit-2 me-2"></i>
+        Editar
+    </a>
+    <a href="{% url 'claims:delete' claim.pk %}" class="btn btn-light text-danger">
+        <i class="feather-trash-2 me-2"></i>
+        Excluir
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card stretch stretch-full">
+                <div class="card-header">
+                    <h5 class="m-b-0">Dados do sinistro</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="fs-12 text-muted">Número</div>
+                            <div class="fs-13 fw-semibold">{{ claim.number }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-12 text-muted">Cliente</div>
+                            <div class="fs-13 fw-semibold">
+                                <a href="{% url 'clients:detail' claim.policy.client.pk %}">{{ claim.policy.client.name }}</a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-12 text-muted">Apólice</div>
+                            <div class="fs-13 fw-semibold">
+                                <a href="{% url 'policies:policy_detail' claim.policy.pk %}">{{ claim.policy.number }}</a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-12 text-muted">Item Coberto</div>
+                            <div class="fs-13 fw-semibold">
+                                {{ claim.covered_item.description }}
+                                <span class="badge bg-gray-200 text-muted ms-1">{{ claim.covered_item.get_type_display }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-12 text-muted">Tipo</div>
+                            <div class="fs-13 fw-semibold">{{ claim.get_type_display }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-12 text-muted">Status</div>
+                            <div class="fs-13 fw-semibold">{{ claim.get_status_display }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-12 text-muted">Reportado em</div>
+                            <div class="fs-13 fw-semibold">{{ claim.reported_at|date:'d/m/Y H:i' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-12 text-muted">Valor de reserva</div>
+                            <div class="fs-13 fw-semibold">R$ {{ claim.reserved_amount|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-12 text-muted">Criado em</div>
+                            <div class="fs-13 fw-semibold">{{ claim.created_at|date:'d/m/Y H:i' }}</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="fs-12 text-muted">Descrição</div>
+                            <div class="fs-13">{{ claim.description|default:'—'|linebreaksbr }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card stretch stretch-full mt-4">
+                <div class="card-header">
+                    <h5 class="m-b-0">Anexos</h5>
+                </div>
+                <div class="card-body">
+                    {% for attachment in claim.attachments.all %}
+                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <div>
+                            <i class="feather-paperclip me-2 text-muted"></i>
+                            <a href="{% url 'claims:claim_attachment_download' attachment.pk %}" class="fs-13 fw-semibold text-dark">
+                                {{ attachment.filename }}
+                            </a>
+                            {% if attachment.description %}
+                            <div class="fs-12 text-muted">{{ attachment.description }}</div>
+                            {% endif %}
+                        </div>
+                        <span class="fs-12 text-muted">{{ attachment.created_at|date:'d/m/Y H:i' }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted fs-12 mb-3">Nenhum anexo enviado.</p>
+                    {% endfor %}
+                    <form method="post" action="{% url 'claims:claim_attachment_create' claim.pk %}" enctype="multipart/form-data" class="d-flex gap-2 mt-3">
+                        {% csrf_token %}
+                        <input type="file" name="file" class="form-control" required>
+                        <input type="text" name="description" class="form-control" placeholder="Descrição (opcional)">
+                        <button type="submit" class="btn btn-light-brand text-nowrap">
+                            <i class="feather-upload me-2"></i>Enviar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card stretch stretch-full">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="m-b-0">Resumo com IA</h5>
+                    <form method="post" action="{% url 'ai:summarize_claim' claim.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-light-brand">
+                            <i class="feather-zap me-1"></i>Resumir com IA
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% if claim.ai_summary %}
+                    <div class="fs-13 text-dark ai-markdown">{{ claim.ai_summary|render_markdown }}</div>
+                    {% else %}
+                    <p class="text-muted fs-12 mb-0">
+                        Clique em "Resumir com IA" para gerar um resumo. Você será notificado quando ficar pronto.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

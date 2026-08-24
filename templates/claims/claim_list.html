@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Sinistros — SCSI{% endblock %}
+
+{% block page_title %}Sinistros{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item">Sinistros</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'claims:create' %}" class="btn btn-primary">
+        <i class="feather-plus me-2"></i>
+        Novo sinistro
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <form method="get" class="d-flex gap-2">
+                <div class="input-group" style="max-width: 420px;">
+                    <span class="input-group-text"><i class="feather-search fs-6 text-muted"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por número ou cliente..." value="{{ search }}">
+                </div>
+                <button type="submit" class="btn btn-light-brand">Buscar</button>
+                {% if search %}
+                <a href="{% url 'claims:list' %}" class="btn btn-light">Limpar</a>
+                {% endif %}
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Apólice</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Reportado em</th>
+                            <th>Reserva (R$)</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for claim in claims %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'claims:detail' claim.pk %}" class="fw-semibold text-dark">
+                                    {{ claim.number }}
+                                </a>
+                            </td>
+                            <td>{{ claim.policy.client.name }}</td>
+                            <td>
+                                <a href="{% url 'policies:policy_detail' claim.policy.pk %}">{{ claim.policy.number }}</a>
+                            </td>
+                            <td>{{ claim.get_type_display }}</td>
+                            <td>
+                                {% if claim.status == 'open' %}
+                                <span class="badge bg-warning-subtle text-warning">Aberto</span>
+                                {% elif claim.status == 'in_analysis' %}
+                                <span class="badge bg-info-subtle text-info">Em análise</span>
+                                {% elif claim.status == 'approved' %}
+                                <span class="badge bg-success-subtle text-success">Aprovado</span>
+                                {% elif claim.status == 'paid' %}
+                                <span class="badge bg-success-subtle text-success">Indenizado</span>
+                                {% elif claim.status == 'denied' %}
+                                <span class="badge bg-danger-subtle text-danger">Recusado</span>
+                                {% else %}
+                                <span class="badge bg-gray-200 text-muted">Concluído</span>
+                                {% endif %}
+                            </td>
+                            <td class="fs-12">{{ claim.reported_at|date:'d/m/Y H:i' }}</td>
+                            <td>R$ {{ claim.reserved_amount|floatformat:2 }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'claims:detail' claim.pk %}" class="btn btn-sm btn-light-brand">
+                                    <i class="feather-eye"></i>
+                                </a>
+                                <a href="{% url 'claims:edit' claim.pk %}" class="btn btn-sm btn-light">
+                                    <i class="feather-edit-2"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">Nenhum sinistro encontrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <span class="fs-12 text-muted">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+        <div class="d-flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&q={{ search }}{% endif %}" class="btn btn-sm btn-light">Anterior</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&q={{ search }}{% endif %}" class="btn btn-sm btn-light">Próxima</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

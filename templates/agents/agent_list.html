@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Agentes — SCSI{% endblock %}
+
+{% block page_title %}Agentes{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'agents:list' %}">Agentes</a></li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'agents:create' %}" class="btn btn-primary">
+        <i class="feather-plus me-2"></i>
+        Novo agente
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <form method="get" class="d-flex gap-2">
+                <div class="input-group" style="max-width: 420px;">
+                    <span class="input-group-text"><i class="feather-search fs-6 text-muted"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por nome..." value="{{ search }}">
+                </div>
+                <button type="submit" class="btn btn-light-brand">Buscar</button>
+                {% if search %}
+                <a href="{% url 'agents:list' %}" class="btn btn-light">Limpar</a>
+                {% endif %}
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Documento</th>
+                            <th>Tipo</th>
+                            <th>Comissão</th>
+                            <th>Produtores</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in agents %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'agents:detail' agent.pk %}" class="fw-semibold text-dark">{{ agent.name }}</a>
+                            </td>
+                            <td>{{ agent.document|default:'—' }}</td>
+                            <td>{{ agent.get_type_display }}</td>
+                            <td>{{ agent.commission_rate|floatformat:2 }}%</td>
+                            <td>{{ agent.producers.count }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'agents:detail' agent.pk %}" class="btn btn-sm btn-light-brand"><i class="feather-eye"></i></a>
+                                <a href="{% url 'agents:edit' agent.pk %}" class="btn btn-sm btn-light"><i class="feather-edit-2"></i></a>
+                                <a href="{% url 'agents:delete' agent.pk %}" class="btn btn-sm btn-light text-danger"><i class="feather-trash-2"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted py-4">Nenhum agente encontrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

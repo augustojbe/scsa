@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load markdown_tags %}
+
+{% block title %}Chat — {{ session.title }} — SCSI{% endblock %}
+
+{% block page_title %}{{ session.title }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'ai:chat_list' %}">Chat com IA</a></li>
+    <li class="breadcrumb-item">{{ session.title }}</li>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'ai:chat_list' %}" class="btn btn-light-brand">
+        <i class="feather-arrow-left me-2"></i>
+        Conversas
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-body" id="chat-box" style="height: 60vh; overflow-y: auto;">
+            {% for message in session.messages.all %}
+            <div class="d-flex mb-3 {% if message.role == 'user' %}justify-content-end{% endif %}">
+                <div class="{% if message.role == 'user' %}bg-primary text-white{% else %}bg-gray-200 text-dark{% endif %} rounded p-3" style="max-width: 75%;">
+                    {% if message.role == 'user' %}
+                    <div style="white-space: pre-line;">{{ message.content }}</div>
+                    {% else %}
+                    <div class="ai-markdown">{{ message.content|render_markdown }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted fs-12 text-center py-5">Inicie a conversa enviando uma mensagem abaixo.</p>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <form id="chat-form" class="d-flex gap-2">
+                {% csrf_token %}
+                <input type="text" id="chat-message" name="message" class="form-control" placeholder="Digite sua mensagem..." autocomplete="off">
+                <button type="submit" class="btn btn-primary text-nowrap">
+                    <i class="feather-send me-2"></i>Enviar
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script>
+(function () {
+    var chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+    var form = document.getElementById('chat-form');
+    var input = document.getElementById('chat-message');
+    var csrf = '{{ csrf_token }}';
+    var sendUrl = '{% url "ai:chat_send" session.pk %}';
+
+    function appendAssistant(container) {
+        var wrap = document.createElement('div');
+        wrap.className = 'd-flex mb-3';
+        var bubble = document.createElement('div');
+        bubble.className = 'bg-gray-200 text-dark rounded p-3 ai-markdown';
+        bubble.style.maxWidth = '75%';
+        wrap.appendChild(bubble);
+        chatBox.appendChild(wrap);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return bubble;
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var message = input.value.trim();
+        if (!message) return;
+
+        // user bubble
+        var userWrap = document.createElement('div');
+        userWrap.className = 'd-flex mb-3 justify-content-end';
+        userWrap.innerHTML = '<div class="bg-primary text-white rounded p-3" style="max-width:75%; white-space:pre-line;"></div>';
+        userWrap.firstElementChild.textContent = message;
+        chatBox.appendChild(userWrap);
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        var assistantBubble = appendAssistant();
+        assistantBubble.textContent = '';
+
+        fetch(sendUrl, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf },
+            body: new URLSearchParams({ message: message })
+        }).then(function (resp) {
+            if (!resp.ok || !resp.body) throw new Error('Erro na resposta');
+            var reader = resp.body.getReader();
+            var decoder = new TextDecoder();
+            var buffer = '';
+            function pump() {
+                return reader.read().then(function (result) {
+                    if (result.done) return;
+                    buffer += decoder.decode(result.value, { stream: true });
+                    var events = buffer.split('\n\n');
+                    buffer = events.pop();
+                    events.forEach(function (ev) {
+                        if (!ev || !ev.startsWith('data: ')) return;
+                        var payload = ev.slice(6);
+                        if (payload === '[DONE]') return;
+                        try {
+                            var data = JSON.parse(payload);
+                            assistantBubble.textContent += data.token;
+                            assistantBubble.innerHTML = assistantBubble.textContent;
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        } catch (err) {}
+                    });
+                    return pump();
+                });
+            }
+            return pump();
+        }).catch(function (err) {
+            assistantBubble.textContent = 'Ocorreu um erro ao obter a resposta.';
+        });
+    });
+})();
+</script>
+{% endblock %}

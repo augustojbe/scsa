@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir etapa — SCSI{% endblock %}
+
+{% block page_title %}Excluir etapa{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'crm:pipeline_list' %}">Pipelines</a></li>
+    <li class="breadcrumb-item">Excluir</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-body">
+            <p class="fs-14 text-dark mb-4">
+                Tem certeza que deseja excluir a etapa <strong>{{ object.name }}</strong>?
+                Esta ação não pode ser desfeita.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                    <a href="{% url 'crm:pipeline_detail' object.pipeline_id %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

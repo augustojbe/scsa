@@ -1690,114 +1690,114 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ### Sprint 11 — Apólices
 
-- [ ] Criar `Policy` (tenant) com número, vigência, prêmio, status, coberturas, itens cobertos.
-- [ ] CRUD de apólices.
-- [ ] Anexos de apólice (Sprint 14).
-- [ ] Campo `ai_summary`.
+- [x] Criar `Policy` (tenant) com número, vigência, prêmio, status, coberturas, itens cobertos.
+- [x] CRUD de apólices.
+- [x] Anexos de apólice (Sprint 14).
+- [x] Campo `ai_summary`.
 
 ### Sprint 12 — Geração de Apólice a partir da Proposta
 
-- [ ] Botão "Gerar apólice" na proposta.
-- [ ] Lógica que cria `Policy` a partir dos dados da proposta.
-- [ ] Marcar proposta como convertida.
+- [x] Botão "Gerar apólice" na proposta.
+- [x] Lógica que cria `Policy` a partir dos dados da proposta.
+- [x] Marcar proposta como convertida.
 
 ### Sprint 13 — Sinistros
 
-- [ ] Criar app `claims` com `Claim` (tenant) vinculado a apólice + item coberto.
-- [ ] CRUD de sinistros.
-- [ ] Anexos de sinistro (Sprint 14).
-- [ ] Campo `ai_summary`.
+- [x] Criar app `claims` com `Claim` (tenant) vinculado a apólice + item coberto.
+- [x] CRUD de sinistros.
+- [x] Anexos de sinistro (Sprint 14).
+- [x] Campo `ai_summary`.
 
 ### Sprint 14 — Anexos Privados
 
-- [ ] Implementar anexos em clientes, propostas, apólices, sinistros. *(clientes e propostas concluídos; apólices e sinistros pendem das Sprints 11/13)*
+- [x] Implementar anexos em clientes, propostas, apólices, sinistros. *(clientes e propostas concluídos; apólices e sinistros pendem das Sprints 11/13)*
 - [x] Criar view segura de download (valida auth + brokerage + permissão).
 - [x] Configurar `MEDIA_ROOT` em volume.
 - [x] 404 para cross-tenant.
 
 ### Sprint 15 — CRM Grid
 
-- [ ] Criar app `crm` com `Pipeline`, `PipelineStage`, `Deal`.
-- [ ] Visão grid de negociações com filtros.
-- [ ] CRUD de negociações.
-- [ ] Personalização de etapas (nome/cor/ordem).
+- [x] Criar app `crm` com `Pipeline`, `PipelineStage`, `Deal`.
+- [x] Visão grid de negociações com filtros.
+- [x] CRUD de negociações.
+- [x] Personalização de etapas (nome/cor/ordem).
 
 ### Sprint 16 — CRM Kanban
 
-- [ ] Visão kanban com colunas = etapas.
-- [ ] Drag-and-drop de cards entre etapas.
-- [ ] Atualizar `stage` ao mover (PATCH).
-- [ ] Campo `ai_summary` na negociação.
+- [x] Visão kanban com colunas = etapas.
+- [x] Drag-and-drop de cards entre etapas.
+- [x] Atualizar `stage` ao mover (PATCH).
+- [x] Campo `ai_summary` na negociação.
 
 ### Sprint 17 — Renovações
 
-- [ ] Criar app `renewals` com `Renewal` (tenant) vinculado a apólice.
-- [ ] Controle de vencimentos e status.
-- [ ] Alertas/relatórios de renovação.
+- [x] Criar app `renewals` com `Renewal` (tenant) vinculado a apólice.
+- [x] Controle de vencimentos e status.
+- [x] Alertas/relatórios de renovação.
 
 ### Sprint 18 — Endossos
 
-- [ ] Criar `Endorsement` vinculado a apólice.
-- [ ] CRUD de endossos.
+- [x] Criar `Endorsement` vinculado a apólice.
+- [x] CRUD de endossos.
 
 ### Sprint 19 — Agentes e Produtores
 
-- [ ] Criar app `agents` com `Agent` e `Producer`.
-- [ ] Hierarquia: agente → produtores; produtor pode ser direto da corretora.
-- [ ] CRUD de agentes e produtores.
+- [x] Criar app `agents` com `Agent` e `Producer`.
+- [x] Hierarquia: agente → produtores; produtor pode ser direto da corretora.
+- [x] CRUD de agentes e produtores.
 
 ### Sprint 20 — Comissões
 
-- [ ] Criar app `commissions` com `Commission`.
-- [ ] Cálculo de repasses (corretora, agente, produtor).
-- [ ] Relatórios de comissões (integrar com Sprint 21).
+- [x] Criar app `commissions` com `Commission`.
+- [x] Cálculo de repasses (corretora, agente, produtor).
+- [x] Relatórios de comissões (integrar com Sprint 21).
 
 ### Sprint 21 — Relatórios
 
-- [ ] Criar app `reports`.
-- [ ] Menu e tela dedicada a relatórios.
-- [ ] Exportação PDF (ReportLab/PyPDF).
-- [ ] Exportação CSV.
-- [ ] Relatórios: clientes, seguros, seguradoras, apólices, propostas, sinistros, renovações, comissões, carteira.
+- [x] Criar app `reports`.
+- [x] Menu e tela dedicada a relatórios.
+- [x] Exportação PDF (ReportLab/PyPDF).
+- [x] Exportação CSV.
+- [x] Relatórios: clientes, seguros, seguradoras, apólices, propostas, sinistros, renovações, comissões, carteira.
 
 ### Sprint 22 — Dashboard
 
-- [ ] Criar app `dashboard`.
-- [ ] Métricas de carteira, seguros, seguradoras, valores.
-- [ ] Gráficos diversos.
-- [ ] Funil de negociações/leads com níveis.
-- [ ] Cache em Redis quando aplicável.
+- [x] Criar app `dashboard`.
+- [x] Métricas de carteira, seguros, seguradoras, valores.
+- [x] Gráficos diversos.
+- [x] Funil de negociações/leads com níveis.
+- [x] Cache em Redis quando aplicável.
 
 ### Sprint 23 — IA para Resumos
 
-- [ ] Criar app `ai` com agentes LangChain/LangGraph.
-- [ ] Configurar OpenAI (GPT-5.5-mini) via `.env`.
-- [ ] Implementar tools de leitura filtradas por tenant.
-- [ ] Tasks Celery: `summarize_client/policy/claim/proposal/deal`.
-- [ ] Salvar resumo em `ai_summary`.
-- [ ] Botão "Resumir com IA" com loading + aviso.
+- [x] Criar app `ai` com agentes LangChain/LangGraph.
+- [x] Configurar OpenAI (GPT-5.5-mini) via `.env`.
+- [x] Implementar tools de leitura filtradas por tenant.
+- [x] Tasks Celery: `summarize_client/policy/claim/proposal/deal`.
+- [x] Salvar resumo em `ai_summary`.
+- [x] Botão "Resumir com IA" com loading + aviso.
 
 ### Sprint 24 — Chat com IA
 
-- [ ] Models `ChatSession` e `ChatMessage`.
-- [ ] Tela de chat no menu lateral.
-- [ ] Sessões salvas por usuário.
-- [ ] Resposta em stream (SSE).
-- [ ] Resposta em Markdown renderizado em HTML (sanitizado).
+- [x] Models `ChatSession` e `ChatMessage`.
+- [x] Tela de chat no menu lateral.
+- [x] Sessões salvas por usuário.
+- [x] Resposta em stream (SSE).
+- [x] Resposta em Markdown renderizado em HTML (sanitizado).
 
 ### Sprint 25 — Celery, RabbitMQ e Redis
 
-- [ ] Configurar Celery com RabbitMQ (broker) e Redis (result backend + cache).
-- [ ] Configurar `celery_beat` se houver agendamentos.
-- [ ] Instalar `dj-celery-panel` no admin.
-- [ ] Garantir que tasks de IA não bloqueiam a interface.
+- [x] Configurar Celery com RabbitMQ (broker) e Redis (result backend + cache).
+- [x] Configurar `celery_beat` se houver agendamentos.
+- [x] Instalar `dj-celery-panel` no admin.
+- [x] Garantir que tasks de IA não bloqueiam a interface.
 
 ### Sprint 26 — Notificações Internas
 
-- [ ] Model `Notification` (tenant + user).
-- [ ] Criar notificação ao concluir task de IA (resumo pronto).
-- [ ] Exibir notificações na interface (toast/badge).
-- [ ] Marcar como lida.
+- [x] Model `Notification` (tenant + user).
+- [x] Criar notificação ao concluir task de IA (resumo pronto).
+- [x] Exibir notificações na interface (toast/badge).
+- [x] Marcar como lida.
 
 ### Sprint 27 — Dados Fake
 

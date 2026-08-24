@@ -23,3 +23,20 @@ class BaseTenantModel(BaseModel):
 
     class Meta:
         abstract = True
+
+
+class Notification(BaseTenantModel):
+    user = models.ForeignKey(
+        'core.User',
+        on_delete=models.CASCADE,
+        related_name='notifications',
+    )
+    message = models.CharField(max_length=255)
+    url = models.CharField(max_length=255, blank=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.message

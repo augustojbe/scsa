@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar apólice{% else %}Nova apólice{% endif %} — SCSI{% endblock %}
+
+{% block page_title %}{% if object %}Editar apólice{% else %}Nova apólice{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'policies:policy_list' %}">Apólices</a></li>
+    <li class="breadcrumb-item">{% if object %}Editar{% else %}Nova{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <h5 class="m-b-0">{% if object %}Editar apólice {{ object.number }}{% else %}Nova apólice{% endif %}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.client.id_for_label }}" class="form-label">Cliente *</label>
+                        {{ form.client }}
+                        {% for error in form.client.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.insurer.id_for_label }}" class="form-label">Seguradora *</label>
+                        {{ form.insurer }}
+                        {% for error in form.insurer.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.branch.id_for_label }}" class="form-label">Ramo *</label>
+                        {{ form.branch }}
+                        {% for error in form.branch.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.premium.id_for_label }}" class="form-label">Prêmio (R$)</label>
+                        {{ form.premium }}
+                        {% for error in form.premium.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.start_date.id_for_label }}" class="form-label">Início da vigência</label>
+                        {{ form.start_date }}
+                        {% for error in form.start_date.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.end_date.id_for_label }}" class="form-label">Fim da vigência</label>
+                        {{ form.end_date }}
+                        {% for error in form.end_date.errors %}
+                        <div class="text-danger fs-12">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-12">
+                        <h6 class="fs-13 fw-semibold mt-2 mb-0">Coberturas</h6>
+                        <div class="d-flex flex-wrap gap-3 mt-2">
+                            {% for checkbox in form.coverages %}
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted fs-12 mb-0">
+                                Nenhuma cobertura cadastrada.
+                                <a href="{% url 'policies:coverage_create' %}">Cadastre uma cobertura</a>.
+                            </p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <h6 class="fs-13 fw-semibold mt-2 mb-0">Itens Cobertos</h6>
+                        <div class="d-flex flex-wrap gap-3 mt-2">
+                            {% for checkbox in form.covered_items %}
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted fs-12 mb-0">
+                                Nenhum item coberto cadastrado.
+                                <a href="{% url 'policies:item_create' %}">Cadastre um item coberto</a>.
+                            </p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">Observações</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% if object %}{% url 'policies:policy_detail' object.pk %}{% else %}{% url 'policies:policy_list' %}{% endif %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar endosso{% else %}Novo endosso{% endif %} — SCSI{% endblock %}
+
+{% block page_title %}{% if object %}Editar endosso{% else %}Novo endosso{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'policies:endorsement_list' %}">Endossos</a></li>
+    <li class="breadcrumb-item">{% if object %}Editar{% else %}Novo{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="card stretch stretch-full">
+        <div class="card-header">
+            <h5 class="m-b-0">{% if object %}Editar endosso{% else %}Novo endosso{% endif %}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.policy.id_for_label }}" class="form-label">Apólice *</label>
+                        {{ form.policy }}
+                        {% for e in form.policy.errors %}<div class="text-danger fs-12">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.type.id_for_label }}" class="form-label">Tipo</label>
+                        {{ form.type }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.effective_date.id_for_label }}" class="form-label">Data de eficácia</label>
+                        {{ form.effective_date }}
+                    </div>
+                    <div class="col-12">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Descrição</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% if object %}{% url 'policies:endorsement_detail' object.pk %}{% else %}{% url 'policies:endorsement_list' %}{% endif %}" class="btn btn-light">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

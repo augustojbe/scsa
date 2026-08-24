@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatórios — SCSI{% endblock %}
+
+{% block page_title %}Relatórios{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'accounts:home' %}">Início</a></li>
+    <li class="breadcrumb-item">Relatórios</li>
+{% endblock %}
+
+{% block content %}
+    <div class="row g-3">
+        {% for report in reports %}
+        <div class="col-xxl-3 col-md-4 col-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <h6 class="fw-bold text-dark mb-3">{{ report.title }}</h6>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'reports:csv' report.slug %}" class="btn btn-sm btn-light-brand">
+                            <i class="feather-download me-1"></i>CSV
+                        </a>
+                        <a href="{% url 'reports:pdf' report.slug %}" class="btn btn-sm btn-light">
+                            <i class="feather-file me-1"></i>PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
