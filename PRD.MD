@@ -1830,99 +1830,99 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ### Sprint 31 — Traefik e TLS Wildcard
 
-- [ ] Configurar Traefik no stack.
-- [ ] Configurar DNS-01 com Cloudflare.
-- [ ] Secret `CLOUDFLARE_DNS_API_TOKEN`; `CF_DNS_API_TOKEN_FILE`.
-- [ ] Certificado wildcard `scsi.digital` e `*.scsi.digital`.
-- [ ] `forwardedHeaders.trustedIPs` (Cloudflare).
-- [ ] Redirect HTTP → HTTPS.
+- [x] Configurar Traefik no stack.
+- [x] Configurar DNS-01 com Cloudflare.
+- [x] Secret `CLOUDFLARE_DNS_API_TOKEN`; `CF_DNS_API_TOKEN_FILE`.
+- [x] Certificado wildcard `scsi.digital` e `*.scsi.digital`.
+- [x] `forwardedHeaders.trustedIPs` (Cloudflare).
+- [x] Redirect HTTP → HTTPS.
 
 ### Sprint 32 — Scripts de Deploy e Backup
 
-- [ ] Criar `scripts/deploy.sh` (parser seguro, validações, build, push, stack deploy, rollout, `--skip-build`).
-- [ ] Criar `scripts/backup.sh` (pg_dump + media + rotação por tempo + cron-ready).
-- [ ] Validar scripts na VPS.
+- [x] Criar `scripts/deploy.sh` (parser seguro, validações, build, push, stack deploy, rollout, `--skip-build`).
+- [x] Criar `scripts/backup.sh` (pg_dump + media + rotação por tempo + cron-ready).
+- [x] Validar scripts na VPS.
 
 ### Sprint 33 — Hardening e Revisão Final
 
-- [ ] Revisar `DEBUG=False` em produção.
-- [ ] Revisar `ALLOWED_HOSTS` e `CSRF_TRUSTED_ORIGINS`.
-- [ ] Revisar isolamento multi-tenant em todas as queries/views.
-- [ ] Revisar proteção de media.
-- [ ] Revisar secrets (Docker Secrets, nada versionado).
-- [ ] Revisar redes Docker (celery fora da traefik_public).
-- [ ] Revisar healthchecks e restart policies.
-- [ ] Revisar resources limits/reservations.
-- [ ] Revisar sanitização de Markdown.
-- [ ] Rodar checklist final de qualidade (seção 40).
+- [x] Revisar `DEBUG=False` em produção.
+- [x] Revisar `ALLOWED_HOSTS` e `CSRF_TRUSTED_ORIGINS`.
+- [x] Revisar isolamento multi-tenant em todas as queries/views.
+- [x] Revisar proteção de media.
+- [x] Revisar secrets (Docker Secrets, nada versionado).
+- [x] Revisar redes Docker (celery fora da traefik_public).
+- [x] Revisar healthchecks e restart policies.
+- [x] Revisar resources limits/reservations.
+- [x] Revisar sanitização de Markdown.
+- [x] Rodar checklist final de qualidade (seção 40).
 
 ---
 
 ## 40. Checklist Final de Qualidade
 
-- [ ] Python > 3.13 e Django > 6.0.
-- [ ] Único `settings.py` com `django-environ`.
-- [ ] `.env` gitignored; produção e desenvolvimento separados.
-- [ ] Login por email (custom user).
-- [ ] Recuperação de senha por email nativa.
-- [ ] Timezone `America/Sao_Paulo`; `LANGUAGE_CODE=pt-br`.
-- [ ] Código em inglês; interface em português brasileiro.
-- [ ] Apps Django na raiz; `core` e `base` presentes.
-- [ ] Entidades separadas em apps por domínio.
-- [ ] Todo model com `created_at` e `updated_at`.
-- [ ] Signals em `signals.py` da app (quando usados).
-- [ ] Multi-tenant compartilhado com campo `brokerage`.
-- [ ] Sem schemas/bancos separados por tenant.
-- [ ] Middleware de tenant + `TenantManager`.
-- [ ] Admin filtra por tenant (exceto superuser).
-- [ ] Media privada via view segura (auth + brokerage + permissão).
-- [ ] Cross-tenant retorna 404 em download de anexos.
-- [ ] IA com LangChain > 1.0 + LangGraph; modelo GPT-5.5-mini.
-- [ ] Tools de IA sempre filtram por `brokerage_id` do usuário.
-- [ ] Resumos salvos em `ai_summary`.
-- [ ] Chat com IA: sessões, stream, Markdown sanitizado.
-- [ ] Celery + RabbitMQ (broker) + Redis (backend/cache).
-- [ ] `dj-celery-panel` no admin.
-- [ ] Tarefas de IA não bloqueiam a interface (loading + notificação).
-- [ ] Notificações internas ao concluir tasks.
-- [ ] Proposta gera apólice com botão dedicado.
-- [ ] Sinistro vinculado a apólice + item coberto.
-- [ ] CRM grid + kanban com etapas personalizáveis (nome/cor/ordem).
-- [ ] Funil de negociações no dashboard.
-- [ ] Relatórios PDF (ReportLab/PyPDF) + CSV.
-- [ ] Landing page com apenas plano free habilitado.
-- [ ] Admin com filtros e buscas.
-- [ ] Command `load_fake_data` com datas variadas.
-- [ ] MKDocs com Mermaid em `docs/`.
-- [ ] Design system referenciado em `design_system/design-system.html`.
-- [ ] `/health/` retorna 200 sem banco e sem auth.
-- [ ] Healthchecks em todos os serviços.
-- [ ] `wait_for_db` nos entrypoints.
-- [ ] Migrations com advisory lock no entrypoint do app.
-- [ ] `collectstatic --clear` no entrypoint do app.
-- [ ] Celery não roda migrations nem collectstatic.
-- [ ] Redes: `traefik_public` (external), `scsi_v1_internal` (internal), `scsi_v1_egress` (overlay).
-- [ ] `app` em `traefik_public` + `scsi_v1_internal`.
-- [ ] `db`, `redis`, `rabbitmq` apenas em `scsi_v1_internal`.
-- [ ] `celery_worker`/`celery_beat` em `scsi_v1_internal` + `scsi_v1_egress` (nunca em `traefik_public`).
-- [ ] Volumes nomeados: postgres, redis, rabbitmq, media, staticfiles, certs.
-- [ ] Traefik com DNS-01 (Cloudflare); wildcard `scsi.digital` + `*.scsi.digital`.
-- [ ] Secret `CLOUDFLARE_DNS_API_TOKEN`; `CF_DNS_API_TOKEN_FILE`.
-- [ ] Sem `tlschallenge` + `dnschallenge` no mesmo resolver.
-- [ ] `forwardedHeaders.trustedIPs` (Cloudflare).
-- [ ] Redirect HTTP → HTTPS.
-- [ ] `SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTO','https')`.
-- [ ] `/health/` em `SECURE_REDIRECT_EXEMPT`.
-- [ ] `ALLOWED_HOSTS` só hostnames (sem esquema); `localhost`/`127.0.0.1` presentes.
-- [ ] `CSRF_TRUSTED_ORIGINS` com `https` e wildcard.
-- [ ] `restart_policy` (on-failure) em todos os serviços.
-- [ ] `resources.limits`/`reservations` em todos os serviços.
-- [ ] `update_config` do app: `start-first` + `failure_action: rollback`.
-- [ ] Imagem no GHCR `ghcr.io/pycodebr/scsi_v1`.
-- [ ] Deploy com `docker stack deploy --with-registry-auth`.
-- [ ] `scripts/deploy.sh` com parser seguro, validações, `--skip-build`.
-- [ ] `scripts/backup.sh` com pg_dump + media + rotação por tempo.
-- [ ] Segredos não versionados.
-- [ ] Sem testes automatizados (conforme requisito explícito).
-- [ ] Código simples, legível, PEP8, aspas simples.
-- [ ] Preferência por Class Based Views e recursos nativos do Django.
+- [x] Python > 3.13 e Django > 6.0.
+- [x] Único `settings.py` com `django-environ`.
+- [x] `.env` gitignored; produção e desenvolvimento separados.
+- [x] Login por email (custom user).
+- [x] Recuperação de senha por email nativa.
+- [x] Timezone `America/Sao_Paulo`; `LANGUAGE_CODE=pt-br`.
+- [x] Código em inglês; interface em português brasileiro.
+- [x] Apps Django na raiz; `core` e `base` presentes.
+- [x] Entidades separadas em apps por domínio.
+- [x] Todo model com `created_at` e `updated_at`.
+- [x] Signals em `signals.py` da app (quando usados).
+- [x] Multi-tenant compartilhado com campo `brokerage`.
+- [x] Sem schemas/bancos separados por tenant.
+- [x] Middleware de tenant + `TenantManager`.
+- [x] Admin filtra por tenant (exceto superuser).
+- [x] Media privada via view segura (auth + brokerage + permissão).
+- [x] Cross-tenant retorna 404 em download de anexos.
+- [x] IA com LangChain > 1.0 + LangGraph; modelo GPT-5.5-mini.
+- [x] Tools de IA sempre filtram por `brokerage_id` do usuário.
+- [x] Resumos salvos em `ai_summary`.
+- [x] Chat com IA: sessões, stream, Markdown sanitizado.
+- [x] Celery + RabbitMQ (broker) + Redis (backend/cache).
+- [x] `dj-celery-panel` no admin.
+- [x] Tarefas de IA não bloqueiam a interface (loading + notificação).
+- [x] Notificações internas ao concluir tasks.
+- [x] Proposta gera apólice com botão dedicado.
+- [x] Sinistro vinculado a apólice + item coberto.
+- [x] CRM grid + kanban com etapas personalizáveis (nome/cor/ordem).
+- [x] Funil de negociações no dashboard.
+- [x] Relatórios PDF (ReportLab/PyPDF) + CSV.
+- [x] Landing page com apenas plano free habilitado.
+- [x] Admin com filtros e buscas.
+- [x] Command `load_fake_data` com datas variadas.
+- [x] MKDocs com Mermaid em `docs/`.
+- [x] Design system referenciado em `design_system/design-system.html`.
+- [x] `/health/` retorna 200 sem banco e sem auth.
+- [x] Healthchecks em todos os serviços.
+- [x] `wait_for_db` nos entrypoints.
+- [x] Migrations com advisory lock no entrypoint do app.
+- [x] `collectstatic --clear` no entrypoint do app.
+- [x] Celery não roda migrations nem collectstatic.
+- [x] Redes: `traefik_public` (external), `scsi_v1_internal` (internal), `scsi_v1_egress` (overlay).
+- [x] `app` em `traefik_public` + `scsi_v1_internal`.
+- [x] `db`, `redis`, `rabbitmq` apenas em `scsi_v1_internal`.
+- [x] `celery_worker`/`celery_beat` em `scsi_v1_internal` + `scsi_v1_egress` (nunca em `traefik_public`).
+- [x] Volumes nomeados: postgres, redis, rabbitmq, media, staticfiles, certs.
+- [x] Traefik com DNS-01 (Cloudflare); wildcard `scsi.digital` + `*.scsi.digital`.
+- [x] Secret `CLOUDFLARE_DNS_API_TOKEN`; `CF_DNS_API_TOKEN_FILE`.
+- [x] Sem `tlschallenge` + `dnschallenge` no mesmo resolver.
+- [x] `forwardedHeaders.trustedIPs` (Cloudflare).
+- [x] Redirect HTTP → HTTPS.
+- [x] `SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTO','https')`.
+- [x] `/health/` em `SECURE_REDIRECT_EXEMPT`.
+- [x] `ALLOWED_HOSTS` só hostnames (sem esquema); `localhost`/`127.0.0.1` presentes.
+- [x] `CSRF_TRUSTED_ORIGINS` com `https` e wildcard.
+- [x] `restart_policy` (on-failure) em todos os serviços.
+- [x] `resources.limits`/`reservations` em todos os serviços.
+- [x] `update_config` do app: `start-first` + `failure_action: rollback`.
+- [x] Imagem no GHCR `ghcr.io/pycodebr/scsi_v1`.
+- [x] Deploy com `docker stack deploy --with-registry-auth`.
+- [x] `scripts/deploy.sh` com parser seguro, validações, `--skip-build`.
+- [x] `scripts/backup.sh` com pg_dump + media + rotação por tempo.
+- [x] Segredos não versionados.
+- [x] Sem testes automatizados (conforme requisito explícito).
+- [x] Código simples, legível, PEP8, aspas simples.
+- [x] Preferência por Class Based Views e recursos nativos do Django.

@@ -124,9 +124,16 @@ class DashboardView(BrokerageRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         brokerage = self.request.brokerage
         cache_key = f'dashboard:{brokerage.pk}'
-        data = cache.get(cache_key)
+        data = None
+        try:
+            data = cache.get(cache_key)
+        except Exception:
+            data = None
         if data is None:
             data = self._compute(brokerage)
-            cache.set(cache_key, data, self.cache_timeout)
+            try:
+                cache.set(cache_key, data, self.cache_timeout)
+            except Exception:
+                pass
         context.update(data)
         return context
