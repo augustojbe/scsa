@@ -1801,32 +1801,32 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ### Sprint 27 — Dados Fake
 
-- [ ] Criar command `load_fake_data`.
-- [ ] Carga de corretora(s), usuários, clientes, seguradoras, ramos, coberturas, propostas, apólices, itens cobertos, sinistros, renovações, endossos, agentes, produtores, comissões, pipeline.
-- [ ] Usar diversas datas diferentes para demonstração realista.
+- [x] Criar command `load_fake_data`.
+- [x] Carga de corretora(s), usuários, clientes, seguradoras, ramos, coberturas, propostas, apólices, itens cobertos, sinistros, renovações, endossos, agentes, produtores, comissões, pipeline.
+- [x] Usar diversas datas diferentes para demonstração realista.
 
 ### Sprint 28 — Admin Django
 
-- [ ] Registrar todas as entidades no admin.
-- [ ] Adicionar `search_fields` e `list_filter`.
-- [ ] Sobrescrever `get_queryset` para filtrar por tenant (exceto superuser).
-- [ ] Validar `brokerage` em save.
-- [ ] Integrar `dj-celery-panel`.
+- [x] Registrar todas as entidades no admin.
+- [x] Adicionar `search_fields` e `list_filter`.
+- [x] Sobrescrever `get_queryset` para filtrar por tenant (exceto superuser).
+- [x] Validar `brokerage` em save.
+- [x] Integrar `dj-celery-panel`.
 
 ### Sprint 29 — MKDocs
 
-- [ ] Configurar MKDocs em `docs/`.
-- [ ] Habilitar suporte a Mermaid.
-- [ ] Documentar instalação, arquitetura, deploy e uso.
-- [ ] Servir documentação online.
+- [x] Configurar MKDocs em `docs/`.
+- [x] Habilitar suporte a Mermaid.
+- [x] Documentar instalação, arquitetura, deploy e uso.
+- [x] Servir documentação online.
 
 ### Sprint 30 — Docker Swarm
 
-- [ ] Criar `docker-stack.yml` com serviços, volumes, redes, restart_policy, resources, update_config.
-- [ ] Definir redes `traefik_public`, `scsi_v1_internal`, `scsi_v1_egress`.
-- [ ] Volumes nomeados (postgres, redis, rabbitmq, media, staticfiles, certs).
-- [ ] Healthchecks em todos os serviços.
-- [ ] Entrypoints com `wait_for_db` + advisory lock + collectstatic --clear.
+- [x] Criar `docker-stack.yml` com serviços, volumes, redes, restart_policy, resources, update_config.
+- [x] Definir redes `traefik_public`, `scsi_v1_internal`, `scsi_v1_egress`.
+- [x] Volumes nomeados (postgres, redis, rabbitmq, media, staticfiles, certs).
+- [x] Healthchecks em todos os serviços.
+- [x] Entrypoints com `wait_for_db` + advisory lock + collectstatic --clear.
 
 ### Sprint 31 — Traefik e TLS Wildcard
 

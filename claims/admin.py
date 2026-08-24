@@ -1,17 +1,17 @@
 from django.contrib import admin
 
+from base.admin import TenantAdminMixin
 from claims.models import Claim, ClaimAttachment
 
 
 @admin.register(Claim)
-class ClaimAdmin(admin.ModelAdmin):
+class ClaimAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['number', 'policy', 'covered_item', 'type', 'status', 'reported_at']
     search_fields = ['number', 'policy__client__name']
-    list_filter = ['type', 'status', 'brokerage']
+    list_filter = ['type', 'status']
 
 
 @admin.register(ClaimAttachment)
-class ClaimAttachmentAdmin(admin.ModelAdmin):
+class ClaimAttachmentAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['claim', 'description', 'created_at']
     search_fields = ['claim__number', 'description']
-    list_filter = ['brokerage']

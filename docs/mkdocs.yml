@@ -1,0 +1,40 @@
+site_name: SCSI — Documentação
+site_description: Sistema de Gestão para Corretora de Seguros Inteligente
+repo_url: https://github.com/pycodebr/scsi_v1
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Modo claro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Modo escuro
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs
+extra_css:
+  - https://unpkg.com/mermaid@10/dist/mermaid.css
+nav:
+  - Início: index.md
+  - Instalação: instalacao.md
+  - Arquitetura: arquitetura.md
+  - Deploy: deploy.md
+  - Uso: uso.md

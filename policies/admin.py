@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from base.admin import TenantAdminMixin
 from policies.models import (
     Coverage,
     CoveredItem,
@@ -12,49 +13,47 @@ from policies.models import (
 
 
 @admin.register(Endorsement)
-class EndorsementAdmin(admin.ModelAdmin):
-    list_display = ['number', 'policy', 'type', 'effective_date', 'brokerage']
+class EndorsementAdmin(TenantAdminMixin, admin.ModelAdmin):
+    list_display = ['number', 'policy', 'type', 'effective_date']
     search_fields = ['number', 'policy__number']
-    list_filter = ['type', 'brokerage']
+    list_filter = ['type']
 
 
 @admin.register(Policy)
-class PolicyAdmin(admin.ModelAdmin):
+class PolicyAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['number', 'client', 'insurer', 'branch', 'status', 'premium', 'start_date', 'end_date']
     search_fields = ['number', 'client__name']
-    list_filter = ['status', 'branch', 'insurer', 'brokerage']
+    list_filter = ['status', 'branch', 'insurer']
 
 
 @admin.register(PolicyAttachment)
-class PolicyAttachmentAdmin(admin.ModelAdmin):
+class PolicyAttachmentAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['policy', 'description', 'created_at']
     search_fields = ['policy__number', 'description']
-    list_filter = ['brokerage']
 
 
 @admin.register(Proposal)
-class ProposalAdmin(admin.ModelAdmin):
+class ProposalAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['pk', 'client', 'insurer', 'branch', 'status', 'premium']
     search_fields = ['client__name']
-    list_filter = ['status', 'branch', 'insurer', 'brokerage']
+    list_filter = ['status', 'branch', 'insurer']
 
 
 @admin.register(ProposalAttachment)
-class ProposalAttachmentAdmin(admin.ModelAdmin):
+class ProposalAttachmentAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['proposal', 'description', 'created_at']
     search_fields = ['proposal__client__name', 'description']
-    list_filter = ['brokerage']
 
 
 @admin.register(Coverage)
-class CoverageAdmin(admin.ModelAdmin):
-    list_display = ['name', 'branch', 'brokerage']
+class CoverageAdmin(TenantAdminMixin, admin.ModelAdmin):
+    list_display = ['name', 'branch']
     search_fields = ['name']
-    list_filter = ['branch', 'brokerage']
+    list_filter = ['branch']
 
 
 @admin.register(CoveredItem)
-class CoveredItemAdmin(admin.ModelAdmin):
-    list_display = ['description', 'type', 'brokerage']
+class CoveredItemAdmin(TenantAdminMixin, admin.ModelAdmin):
+    list_display = ['description', 'type']
     search_fields = ['description']
-    list_filter = ['type', 'brokerage']
+    list_filter = ['type']
